@@ -34,9 +34,10 @@ Locale = en_US@collation=binary
 7. Execute the generated a.out binary by running `./a.out --access-token <access token>`
 
 Possible options:
+```
 --access-token <access token>
 --refresh-token <refresh token>
 --client-id <client ID>
 --client-secret <client secret>
 --token-url <token URL>
-
+```
