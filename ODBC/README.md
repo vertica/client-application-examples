@@ -1,3 +1,8 @@
+# Pre-requisites
+g++ compiler (tested with version 7.3.1)
+
+This sample app was tested on Linux.
+
 # Running the ODBC sample app
 1. Run `sudo yum install unixODBC-devel` (allows include sql.h)
 2. Install the Vertica ODBC driver:
