@@ -1,8 +1,9 @@
 # Pre-requisites
+
 - Maven (tested with version 3.8.4)
 - Java (tested with version 6)
 
-This application has been tested on both MacOS and Linux.
+This application has been tested on MacOS, Linux, and Windows.
 
 # Running the JDBC sample app
 

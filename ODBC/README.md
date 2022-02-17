@@ -1,9 +1,11 @@
 # Pre-requisites
+
 - g++ compiler (tested with version 7.3.1)
 
-This sample app was tested on Linux.
+This sample app was tested on Linux and Windows.
 
 # Running the ODBC sample app
+
 1. Run `sudo yum install unixODBC-devel` (allows include `sql.h`)
 2. Install the Vertica ODBC driver:
 ```
@@ -31,6 +33,14 @@ Locale = en_US@collation=binary
 5. Run `export LIBVERTICAODBC_DIR=<folder containing libverticaodbc.so>`. For example, if your `libverticaodbc.so` is located at `/opt/vertica/lib64/libverticaodbc.so`, then you should use `/opt/vertica/lib64`
 6. Run `g++ OAuthSampleApp.cpp -L$LIBVERTICAODBC_DIR -lverticaodbc -Wl,-rpath=$LIBVERTICAODBC_DIR`
 7. Execute the generated `a.out` binary by running `./a.out --access-token <access token>`
+
+Note that for Windows and MacOS, rather than use the `.odbc.ini` file the [Vertica ODBC client](https://www.vertica.com/download/vertica/client-drivers/) must be installed and a Vertica ODBC data source must be created named `VerticaDSN` using the ODBC Data Source Administrator.
+
+Also note that the command to compile the sample app may differ slightly depending on the platform.  The following is how to compile on Windows, assuming an ODBC driver is already installed and available (such as through MinGW):
+```
+g++ OAuthSampleApp.cpp -lodbc32 -Wall
+./a.exe --access-token <access token>
+```
 
 Possible options:
 ```
