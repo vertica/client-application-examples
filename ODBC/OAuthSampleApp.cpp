@@ -14,6 +14,10 @@
 // Demonstrate running a query after connecting to Vertica using the OAuth authentication method
 // system table for a list of all tables in the current schema.
 
+#if defined(_WIN16) || defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#endif
+
 // Standard headers
 #include <unistd.h>
 #include <stdlib.h>
