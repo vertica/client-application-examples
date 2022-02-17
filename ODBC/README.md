@@ -39,7 +39,7 @@ Note that for Windows and MacOS, rather than use the `.odbc.ini` file the [Verti
 Also note that the command to compile the sample app may differ slightly depending on the platform.  The following is how to compile on Windows, assuming an ODBC driver is already installed and available (such as through MinGW):
 ```
 g++ OAuthSampleApp.cpp -lodbc32 -Wall
-./a.exe --access-token <access token>`
+./a.exe --access-token <access token>
 ```
 
 Possible options:
