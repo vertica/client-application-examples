@@ -10,6 +10,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -19,13 +20,13 @@ import java.sql.SQLTransientConnectionException;
 import java.sql.SQLInvalidAuthorizationSpecException;
 import java.util.Properties;
 import java.util.concurrent.Callable;
+
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "OAuthSampleApp", mixinStandardHelpOptions = true, version = "OAuth sample app 1.0",
-        description = "Connects to a Vertica database using OAuth")
+@Command(name = "OAuthSampleApp", mixinStandardHelpOptions = true, version = "OAuth sample app 1.0", description = "Connects to a Vertica database using OAuth")
 public class OAuthSampleApp implements Callable<Integer> {
 
     @Parameters(index = "0", description = "Host name")
@@ -34,25 +35,26 @@ public class OAuthSampleApp implements Callable<Integer> {
     @Parameters(index = "1", description = "Database name")
     private String dbName = "";
 
-    @Option(names = {"-p", "--port"}, description = "Port")
+    @Option(names = { "-p", "--port" }, description = "Port")
     private String port = "5433";
 
-    @Option(names = {"-a", "--access-token"}, description = "Access token")
+    @Option(names = { "-a", "--access-token" }, description = "Access token")
     private String accessToken = "";
 
-    @Option(names = {"-r", "--refresh-token"}, description = "Refresh token")
+    @Option(names = { "-r", "--refresh-token" }, description = "Refresh token")
     private String refreshToken = "";
 
-    @Option(names = {"-i", "--client-id"}, description = "Client ID")
+    @Option(names = { "-i", "--client-id" }, description = "Client ID")
     private String clientId = "";
 
-    @Option(names = {"-s", "--client-secret"}, description = "Client Secret")
+    @Option(names = { "-s", "--client-secret" }, description = "Client Secret")
     private String clientSecret = "";
 
-    @Option(names = {"-t", "--token-url"}, description = "Token URL")
+    @Option(names = { "-t", "--token-url" }, description = "Token URL")
     private String tokenUrl = "";
 
-    private static Connection connectToDB(String host, String port, String dbName, String accessToken, String clientSecret, String refreshToken, String clientId, String tokenUrl) throws SQLException {
+    private static Connection connectToDB(String host, String port, String dbName, String accessToken,
+            String clientSecret, String refreshToken, String clientId, String tokenUrl) throws SQLException {
         Properties jdbcOptions = new Properties();
         jdbcOptions.put("user", "");
         jdbcOptions.put("password", "");
@@ -82,7 +84,8 @@ public class OAuthSampleApp implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         try {
-            Connection conn = connectToDB(host, port, dbName, accessToken, clientSecret, refreshToken, clientId, tokenUrl);
+            Connection conn = connectToDB(host, port, dbName, accessToken, clientSecret, refreshToken, clientId,
+                    tokenUrl);
             ResultSet rs = executeQuery(conn);
             printResults(rs);
             conn.close();
@@ -104,4 +107,5 @@ public class OAuthSampleApp implements Callable<Integer> {
         int exitCode = new CommandLine(new OAuthSampleApp()).execute(args);
         System.exit(exitCode);
     }
+
 }

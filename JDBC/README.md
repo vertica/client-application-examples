@@ -11,8 +11,10 @@ Run the sample app using the following command:
 mvn compile exec:java -Dexec.mainClass=OAuthSampleApp -Dexec.args="hostname dbname <parameters>"
 ```
 
-When running the app, specify the Vertica host and database name as the first two parameters. All other parameters are optional. 
-Example: `java OAuthSampleApp verticahost mydb --access-token myaccesstoken`
+When running the app, specify the Vertica host and database name as the first two parameters. All other parameters are optional. For example:
+```
+mvn compile exec:java -Dexec.mainClass=OAuthSampleApp -Dexec.args="verticahost mydb --access-token myaccesstoken"
+```
 
 Possible options:
 ```
