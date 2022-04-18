@@ -53,16 +53,18 @@ public class OAuthSampleApp implements Callable<Integer> {
     @Option(names = { "-t", "--token-url" }, description = "Token URL")
     private String tokenUrl = "";
 
+    @Option(names = { "-sc", "--scope" }, description = "Scope")
+    private String scope = "";
+
     private static Connection connectToDB(String host, String port, String dbName, String accessToken,
-            String clientSecret, String refreshToken, String clientId, String tokenUrl) throws SQLException {
+            String clientSecret, String refreshToken, String clientId, String tokenUrl, String scope) throws SQLException {
         Properties jdbcOptions = new Properties();
-        jdbcOptions.put("user", "");
-        jdbcOptions.put("password", "");
         jdbcOptions.put("oauthaccesstoken", accessToken);
         jdbcOptions.put("oauthrefreshtoken", refreshToken);
         jdbcOptions.put("oauthtokenurl", tokenUrl);
         jdbcOptions.put("oauthclientid", clientId);
         jdbcOptions.put("oauthclientsecret", clientSecret);
+	jdbcOptions.put("oauthscope", scope);
 
         return DriverManager.getConnection(
                 "jdbc:vertica://" + host + ":" + port + "/" + dbName, jdbcOptions);
@@ -85,7 +87,7 @@ public class OAuthSampleApp implements Callable<Integer> {
     public Integer call() throws Exception {
         try {
             Connection conn = connectToDB(host, port, dbName, accessToken, clientSecret, refreshToken, clientId,
-                    tokenUrl);
+                    tokenUrl, scope);
             ResultSet rs = executeQuery(conn);
             printResults(rs);
             conn.close();
