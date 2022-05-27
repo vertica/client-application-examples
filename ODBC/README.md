@@ -4,6 +4,8 @@
 
 This sample app was tested on Linux and Windows.
 
+The server must be configured for OAuth as described [here](https://www.vertica.com/docs/latest/HTML/Content/Authoring/Security/ClientAuth/OAuth/OAuthODBC.htm)
+
 # Running the ODBC sample app
 
 1. Run `sudo yum install unixODBC-devel` (allows include `sql.h`)
@@ -49,4 +51,5 @@ Possible options:
 --client-id <client ID>
 --client-secret <client secret>
 --token-url <token URL>
+--scope <scope>
 ```

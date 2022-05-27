@@ -5,6 +5,8 @@
 
 This application has been tested on MacOS, Linux, and Windows.
 
+The server must be configured for OAuth as described [here](https://www.vertica.com/docs/latest/HTML/Content/Authoring/Security/ClientAuth/OAuth/OAuthJDBC.htm)
+
 # Running the JDBC sample app
 
 Run the sample app using the following command:
@@ -25,4 +27,5 @@ Possible options:
 -i, --client-id <client ID>
 -s, --client-secret <client secret>
 -t, --token-url <token URL>
+-sc, --scope <scope>
 ```
