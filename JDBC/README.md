@@ -5,7 +5,7 @@
 
 This application has been tested on MacOS, Linux, and Windows.
 
-The server must be configured for OAuth as described here: https://www.vertica.com/docs/11.1.x/HTML/Content/Authoring/Security/ClientAuth/OAuth/OAuthJDBC.htm
+The server must be configured for OAuth as described [here](https://www.vertica.com/docs/latest/HTML/Content/Authoring/Security/ClientAuth/OAuth/OAuthJDBC.htm)
 
 # Running the JDBC sample app
 
