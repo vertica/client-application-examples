@@ -11,8 +11,8 @@ The server must be configured for OAuth as described [here](https://www.vertica.
 1. Run `sudo yum install unixODBC-devel` (allows include `sql.h`)
 2. Install the Vertica ODBC driver:
 ```
-wget https://www.vertica.com/client_drivers/11.1.x/11.1.0-0/vertica-client-11.1.0-0.x86_64.rpm
-sudo yum localinstall vertica-client-11.1.0-0.x86_64.rpm
+wget https://www.vertica.com/client_drivers/12.0.x/12.0.0-0/vertica-client-12.0.0-0.x86_64.rpm
+sudo yum localinstall vertica-client-12.0.0-0.x86_64.rpm
 ```
 3. Create `~/.odbc.ini`
 4. Put this in the `odbc.ini` file:
