@@ -79,9 +79,17 @@ void connectToDB(
     std::string tokenUrl,
     std::string scope)
 {
+    // Construct json config for static oauth config
+    std::string jsonConfig = std::string("{") +
+	"\"oauthtokenurl\" : \"" + tokenUrl + "\", " +
+        "\"oauthclientid\" : \"" + clientId + "\", " +
+        "\"oauthclientsecret\" : \"" + clientSecret + "\", " +
+        "\"oauthscope\" : \"" + scope + "\"" +
+        "}";
+
     // Connect to the database
     std::cout << "Connecting to database." << std::endl;
-    ret = SQLDriverConnect(hdlDbc, NULL, (SQLCHAR *)("DSN=VerticaDSN;OAuthAccessToken=" + accessToken + ";OAuthRefreshToken=" + refreshToken + ";OAuthClientId=" + clientId + ";OAuthClientSecret=" + clientSecret + ";OAuthTokenUrl=" + tokenUrl + ";OAuthScope=" + scope).c_str(), SQL_NTS, NULL, 0, NULL, false);
+    ret = SQLDriverConnect(hdlDbc, NULL, (SQLCHAR *)("DSN=VerticaDSN;OAuthAccessToken=" + accessToken + ";OAuthRefreshToken=" + refreshToken + ";OAuthJsonConfig=" + jsonConfig).c_str(), SQL_NTS, NULL, 0, NULL, false);
     if (!SQL_SUCCEEDED(ret))
     {
         std::cout << "Could not connect to database" << std::endl;

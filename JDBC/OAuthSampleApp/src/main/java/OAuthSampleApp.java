@@ -61,10 +61,15 @@ public class OAuthSampleApp implements Callable<Integer> {
         Properties jdbcOptions = new Properties();
         jdbcOptions.put("oauthaccesstoken", accessToken);
         jdbcOptions.put("oauthrefreshtoken", refreshToken);
-        jdbcOptions.put("oauthtokenurl", tokenUrl);
-        jdbcOptions.put("oauthclientid", clientId);
-        jdbcOptions.put("oauthclientsecret", clientSecret);
-	jdbcOptions.put("oauthscope", scope);
+
+	// Put these options into static json config
+	String jsonConfig = "{\"oauthtokenurl\" : \"" + tokenUrl + "\", " +  
+	"\"oauthclientid\" : \"" + clientId + "\", " + 
+	"\"oauthclientsecret\" : \"" + clientSecret + "\", " +
+	"\"oauthscope\" : \"" + scope + "\"" +
+	"}";
+	System.out.println(jsonConfig);
+	jdbcOptions.put("oauthjsonconfig", jsonConfig);
 
         return DriverManager.getConnection(
                 "jdbc:vertica://" + host + ":" + port + "/" + dbName, jdbcOptions);
