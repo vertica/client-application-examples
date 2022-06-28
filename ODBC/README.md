@@ -4,7 +4,7 @@
 
 This sample app was tested on Linux and Windows.
 
-The server must be configured for OAuth as described [here](https://www.vertica.com/docs/latest/HTML/Content/Authoring/Security/ClientAuth/OAuth/OAuthODBC.htm)
+The server must be configured for OAuth as described in the [Vertica documentation](https://www.vertica.com/docs/12.0.x/HTML/Content/Authoring/Security/ClientAuth/OAuth/ConfiguringOAuth.htm).
 
 # Running the ODBC sample app
 
