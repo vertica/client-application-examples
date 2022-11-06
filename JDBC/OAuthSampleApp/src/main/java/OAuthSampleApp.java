@@ -56,8 +56,11 @@ public class OAuthSampleApp implements Callable<Integer> {
     @Option(names = { "-sc", "--scope" }, description = "Scope")
     private String scope = "";
 
+    @Option(names = { "-v", "--validate-hostname" }, description = "Validate Hostname")
+    private String validateHost = "";
+
     private static Connection connectToDB(String host, String port, String dbName, String accessToken,
-            String clientSecret, String refreshToken, String clientId, String tokenUrl, String scope) throws SQLException {
+            String clientSecret, String refreshToken, String clientId, String tokenUrl, String scope, String validateHost) throws SQLException {
         Properties jdbcOptions = new Properties();
         jdbcOptions.put("oauthaccesstoken", accessToken);
         jdbcOptions.put("oauthrefreshtoken", refreshToken);
@@ -66,6 +69,7 @@ public class OAuthSampleApp implements Callable<Integer> {
 	String jsonConfig = "{\"oauthtokenurl\" : \"" + tokenUrl + "\", " +  
 	"\"oauthclientid\" : \"" + clientId + "\", " + 
 	"\"oauthclientsecret\" : \"" + clientSecret + "\", " +
+	"\"oauthvalidatehostname\" : \"" + validateHost + "\", " +
 	"\"oauthscope\" : \"" + scope + "\"" +
 	"}";
 	System.out.println(jsonConfig);
@@ -92,7 +96,7 @@ public class OAuthSampleApp implements Callable<Integer> {
     public Integer call() throws Exception {
         try {
             Connection conn = connectToDB(host, port, dbName, accessToken, clientSecret, refreshToken, clientId,
-                    tokenUrl, scope);
+                    tokenUrl, scope, validateHost);
             ResultSet rs = executeQuery(conn);
             printResults(rs);
             conn.close();

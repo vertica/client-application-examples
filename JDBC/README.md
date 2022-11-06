@@ -28,4 +28,5 @@ Possible options:
 -s, --client-secret <client secret>
 -t, --token-url <token URL>
 -sc, --scope <scope>
+-v, --validate-hostname
 ```
