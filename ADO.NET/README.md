@@ -31,12 +31,12 @@ The following example is for Linux, the same instructions also apply to Windows 
 vi app.config
 
 # If the application has already been built, modify the copy under the build dir
-vi ./bin/Release/net6.0/linux-x64/Test.dll.config
+sudo vi ./bin/Release/net6.0/linux-x64/Test.dll.config
 ```
 
 3. Build the application:
 ```sh
-donet build
+sudo donet build
 ```
 
 4. Run the application:
