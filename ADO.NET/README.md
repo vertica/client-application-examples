@@ -41,5 +41,6 @@ dotnet build -property:RuntimeIdentifier=linux-x64
 .\bin\Release\net6.0\win-x64\AdoDotNetSampleApp.exe
 
 # Linux
+# Note that only the .NET Core builds can be run on Linux
 ./bin/Release/net6.0/linux-x64/AdoDotNetSampleApp
 ```
