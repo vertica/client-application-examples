@@ -2,16 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.0;net462;net6.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net462;net6.0</TargetFrameworks>
     <RuntimeIdentifier Condition="'$(OS)' == 'Windows_NT'">win-x64</RuntimeIdentifier>
     <RuntimeIdentifier Condition="'$(OS)' != 'Windows_NT'">linux-x64</RuntimeIdentifier>
     <Configuration>Release</Configuration>
     <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <CheckEolTargetFramework>false</CheckEolTargetFramework>
-    <NoWarn>MSB3277</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,8 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
   </ItemGroup>
 
 </Project>
