@@ -5,13 +5,13 @@
 - .NET Core 3.1+, or .NET Framework 4.6.1+
 - The Vertica ADO.NET DLL
 
-Note that for Linux support you will need .NET Core.  It is recommended to use .NET 6.0 since it is a long-term support version.
+:information_source: Note that you will need to use .NET Core, not .NET Framework, if using Linux or Mac.  It is recommended to use .NET 6.0 since it is a long-term support version.
 
-Note that in the future the Vertica ADO.NET driver will be made available via NuGet.  Until then, you get a copy from the Vertica Windows installer or contact Vertica directly.
+:information_source: Note that in the future the Vertica ADO.NET driver will be made available via NuGet.  Until then, you get contact Vertica for a copy.
 
 ## Install .NET
 
-Follow the instructions for [Windows](https://learn.microsoft.com/en-us/dotnet/core/install/windows?tabs=net60) or [Linux](https://learn.microsoft.com/en-us/dotnet/core/install/linux).
+Follow the instructions for [Windows](https://learn.microsoft.com/en-us/dotnet/core/install/windows?tabs=net60), [Linux](https://learn.microsoft.com/en-us/dotnet/core/install/linux), or [macOS](https://learn.microsoft.com/en-us/dotnet/core/install/macos).
 
 For example, do the following to install .NET 6.0 on CentOS 7:
 ```sh
@@ -31,16 +31,18 @@ dotnet --version
 dotnet build
 
 # Linux
-# Note that you may need to use sudo on Linux, depending on how dotnet was installed
 dotnet build -property:RuntimeIdentifier=linux-x64
 ```
-4. Run the application:
+4. Run the application (for each supported target .NET version):
 ```sh
 # Windows
-# Note that other .NET builds are also generated, this example just runs the .NET 6.0 build
 .\bin\Release\net6.0\win-x64\AdoDotNetSampleApp.exe
+.\bin\Release\netcoreapp3.1\win-x64\AdoDotNetSampleApp.exe
+.\bin\Release\net462\win-x64\AdoDotNetSampleApp.exe
 
 # Linux
-# Note that only the .NET Core builds can be run on Linux
 ./bin/Release/net6.0/linux-x64/AdoDotNetSampleApp
+./bin/Release/netcoreapp3.1/linux-x64/AdoDotNetSampleApp
 ```
+
+:warning: When using Linux, if you run into permissions issues you can run `dotnet build` and other commands with `sudo`.
