@@ -27,22 +27,17 @@ dotnet --version
 2. Modify the `app.config` connection string and query as needed (note that `app.config` is copied to the build directory as `AdoDotNetSampleApp.dll.config`)
 3. Build the application:
 ```sh
-# Windows
 dotnet build
-
-# Linux
-dotnet build -property:RuntimeIdentifier=linux-x64
 ```
-4. Run the application (for each supported target .NET version):
+4. Run the application:
 ```sh
 # Windows
 .\bin\Release\net6.0\win-x64\AdoDotNetSampleApp.exe
-.\bin\Release\netcoreapp3.1\win-x64\AdoDotNetSampleApp.exe
-.\bin\Release\net462\win-x64\AdoDotNetSampleApp.exe
 
-# Linux
-./bin/Release/net6.0/linux-x64/AdoDotNetSampleApp
-./bin/Release/netcoreapp3.1/linux-x64/AdoDotNetSampleApp
+# Linux or Mac
+./bin/Release/net6.0/AdoDotNetSampleApp
 ```
+
+:information_source: Note that the build produces binaries for multiple target .NET versions: .NET 6.0, .NET Core 3.1, and .NET Framework 4.6.2 (Windows only).  You will need to install the matching .NET runtime to run a given build of the sample app.
 
 :warning: When using Linux, if you run into permissions issues you can run `dotnet build` and other commands with `sudo`.
