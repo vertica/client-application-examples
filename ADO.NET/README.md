@@ -1,9 +1,16 @@
 # ADO.NET Sample App
 
+## Overview
+
+The Vertica ADO.NET driver provides a data source for Vertica, so a client can connect and read/write data.  The driver is written in C# and built on .NET.
+
+See the available data types, commands, and other information [here](https://docs.vertica.com/latest/en/connecting-to/client-libraries/accessing/c/).
+
 ## Prerequisites
 
 - .NET Core 3.1+, or .NET Framework 4.6.1+
 - The Vertica ADO.NET DLL
+- A running Vertica database
 
 :information_source: Note that you will need to use .NET Core, not .NET Framework, if using Linux or Mac.  It is recommended to use .NET 6.0 since it is a long-term support version.
 
@@ -21,7 +28,21 @@ sudo yum install -y dotnet-sdk-6.0
 dotnet --version
 ```
 
-## Running the ADO.NET sample app
+## Start a Vertica server
+
+If you don't already have a Vertica instance running, it is recommended to use the Vertica Community Edition (CE) Docker image.
+
+Start Vertica CE in Docker:
+```sh
+docker run -d \
+    -p 5433:5433 -p 5444:5444 \
+    -v vertica-data:/data \
+    --name vertica-ce \
+    --restart=unless-stopped \
+    vertica/vertica-ce:latest
+```
+
+## Build and run the ADO.NET sample app
 
 1. Copy the Vertica ADO.NET driver DLL (`Vertica.Data.dll`) to the `lib` folder.
 2. Modify the `app.config` connection string and query as needed (note that `app.config` is copied to the build directory as `AdoDotNetSampleApp.dll.config`)
