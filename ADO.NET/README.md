@@ -34,10 +34,13 @@ dotnet build
 # Windows
 .\bin\Release\net6.0\win-x64\AdoDotNetSampleApp.exe
 
-# Linux or Mac
-./bin/Release/net6.0/AdoDotNetSampleApp
+# Linux
+./bin/Release/net6.0/linux-x64/AdoDotNetSampleApp
+
+# Mac
+./bin/Release/net6.0/osx-x64/AdoDotNetSampleApp
 ```
 
-:information_source: Note that the build produces binaries for multiple target .NET versions: .NET 6.0, .NET Core 3.1, and .NET Framework 4.6.2 (Windows only).  You will need to install the matching .NET runtime to run a given build of the sample app.
+:information_source: Note that the sample app produces binaries for multiple target .NET versions: .NET 6.0, .NET Core 3.1, and .NET Framework 4.6.2 (Windows only).  The above example only shows .NET 6.0.
 
 :warning: When using Linux, if you run into permissions issues you can run `dotnet build` and other commands with `sudo`.
