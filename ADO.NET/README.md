@@ -20,14 +20,6 @@ See the available data types, commands, and other information [here](https://doc
 
 Follow the instructions for [Windows](https://learn.microsoft.com/en-us/dotnet/core/install/windows?tabs=net60), [Linux](https://learn.microsoft.com/en-us/dotnet/core/install/linux), or [macOS](https://learn.microsoft.com/en-us/dotnet/core/install/macos).
 
-For example, do the following to install .NET 6.0 on CentOS 7:
-```sh
-sudo rpm -Uvh https://packages.microsoft.com/config/centos/7/packages-microsoft-prod.rpm
-sudo yum install -y dotnet-sdk-6.0
-
-dotnet --version
-```
-
 ## Start a Vertica server
 
 If you don't already have a Vertica instance running, it is recommended to use the Vertica Community Edition (CE) Docker image.
@@ -63,5 +55,3 @@ dotnet build
 ```
 
 :information_source: Note that the sample app produces binaries for multiple target .NET versions: .NET 6.0, .NET Core 3.1, and .NET Framework 4.6.2 (Windows only).  The above example only shows .NET 6.0.
-
-:warning: When using Linux, if you run into permissions issues you can run `dotnet build` and other commands with `sudo`.
