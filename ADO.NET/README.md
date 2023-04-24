@@ -56,7 +56,7 @@ dotnet build
 
 If you have the Vertica ADO.NET driver NuGet package, you can update the project to use the package directly:
 
-1. Copy the Vertica ADO.NET driver NuGet package (`Vertica.Data.<VERSION>.nupkg`) to a `packages` folder.
+1. Copy the Vertica ADO.NET driver NuGet package (`Vertica.Data.<VERSION>.nupkg`) to the `packages` folder
 2. Add the following to a `nuget.config` file in this directory:
 ```xml
 <?xml version="1.0" encoding="utf-8" ?>
@@ -73,7 +73,7 @@ If you have the Vertica ADO.NET driver NuGet package, you can update the project
 
 If you have the Vertica ADO.NET driver DLL, you can update the project to use the DLL directly:
 
-1. Copy the Vertica ADO.NET driver DLL (`Vertica.Data.dll`) to a `lib` folder.
+1. Copy the Vertica ADO.NET driver DLL (`Vertica.Data.dll`) to the `lib` folder
 2. Replace the existing packages reference in the project file with the following:
 ```xml
 <ItemGroup>
