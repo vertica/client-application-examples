@@ -12,14 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="Vertica.Data">
-      <HintPath>lib\Vertica.Data.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+    <PackageReference Include="Vertica.Data" Version="23.3.0" />
   </ItemGroup>
 
 </Project>
