@@ -2,7 +2,7 @@ using System;
 using System.Configuration;
 using Vertica.Data.VerticaClient;
 
-class AdoDotNetSampleApp
+class SampleApp
 {
     static void Main(string[] args)
     {

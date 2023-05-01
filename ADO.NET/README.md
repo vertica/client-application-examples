@@ -33,7 +33,7 @@ docker run -d \
 
 ## Build and run the ADO.NET sample app
 
-1. Modify the `app.config` connection string and query as needed (note that `app.config` is copied to the build directory as `AdoDotNetSampleApp.dll.config` during the build)
+1. Modify the `app.config` connection string and query as needed (note that `app.config` is copied to the build directory as `SampleApp.dll.config` during the build)
 2. Build the application:
 ```sh
 dotnet build
@@ -41,33 +41,16 @@ dotnet build
 3. Run the application:
 ```sh
 # Windows
-.\bin\Release\net6.0\win-x64\AdoDotNetSampleApp.exe
+.\bin\Release\net6.0\win-x64\SampleApp.exe
 
 # Linux
-./bin/Release/net6.0/linux-x64/AdoDotNetSampleApp
+./bin/Release/net6.0/linux-x64/SampleApp
 
 # Mac
-./bin/Release/net6.0/osx-x64/AdoDotNetSampleApp
+./bin/Release/net6.0/osx-x64/SampleApp
 ```
 
 :information_source: Note that the sample app produces binaries for multiple target .NET versions: .NET 6.0, .NET Core 3.1, and .NET Framework 4.6.2 (Windows only).  The above example only shows .NET 6.0.
-
-### Referencing a local NuGet package
-
-If you have the Vertica ADO.NET driver NuGet package, you can update the project to use the package directly:
-
-1. Copy the Vertica ADO.NET driver NuGet package (`Vertica.Data.<VERSION>.nupkg`) to the `packages` folder
-2. Add the following to a `nuget.config` file in this directory:
-```xml
-<?xml version="1.0" encoding="utf-8" ?>
-<configuration>
-  <packageSources>
-    <add key="LocalPackages" value="packages" />
-  </packageSources>
-</configuration>
-```
-3. Update the Vertica.Data package reference version in the project file as needed
-4. Build and run the application, same as above
 
 ### Referencing a DLL
 
@@ -88,3 +71,20 @@ If you have the Vertica ADO.NET driver DLL, you can update the project to use th
 </ItemGroup>
 ```
 3. Build and run the application, same as above
+
+### Referencing a local NuGet package
+
+If you have the Vertica ADO.NET driver NuGet package, you can update the project to use the package directly:
+
+1. Copy the Vertica ADO.NET driver NuGet package (`Vertica.Data.<VERSION>.nupkg`) to the `packages` folder
+2. Add the following to a `nuget.config` file in this directory:
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <packageSources>
+    <add key="LocalPackages" value="packages" />
+  </packageSources>
+</configuration>
+```
+3. Update the Vertica.Data package reference version in the project file as needed
+4. Build and run the application, same as above
