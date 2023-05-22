@@ -10,26 +10,35 @@ class SampleApp
         using (VerticaConnection connection = new VerticaConnection())
         {
             connection.ConnectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-            connection.Open();
-
-            // Query the database
-            string query = ConfigurationManager.AppSettings["Query"];
-            using (VerticaCommand command = connection.CreateCommand())
+            
+            try {
+                connection.Open();
+            } 
+            catch (Exception e)
             {
-                command.CommandText = query;
+                Console.WriteLine("Could not connect to {0}", connection.ConnectionString);
+                Console.WriteLine (e);
+                return;
+            }
 
-                // Read the query results
-                using (VerticaDataReader reader = command.ExecuteReader())
+            try {               
+                // Query the database
+                using (VerticaCommand command = connection.CreateCommand())
                 {
-                    while (reader.Read())
+                    command.CommandText = ConfigurationManager.AppSettings["Query"];
+   
+                    // Read the query results
+                    using (VerticaDataReader reader = command.ExecuteReader())
                     {
-                        for (int i = 0; i < reader.FieldCount; i++)
-                        {
-                            Console.Write(reader.GetValue(i) + "\t");
-                        }
-                        Console.WriteLine();
+                        ResultSetPrinter printer = new ResultSetPrinter ();
+                        printer.printResults (reader);
                     }
                 }
+            }             
+            catch (Exception e) {
+                Console.WriteLine("Something went wrong with the sample app!");
+                Console.WriteLine(e);
+                return;
             }
         }
     }
