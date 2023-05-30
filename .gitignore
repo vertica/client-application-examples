@@ -78,3 +78,7 @@ replay_pid*
 
 # IntelliJ
 .idea/
+
+# .NET
+bin/
+obj/
