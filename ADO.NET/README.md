@@ -45,6 +45,17 @@ dotnet run --framework net6.0
 
 :information_source: Note that the sample app produces binaries for multiple target .NET versions: .NET 6.0, .NET Core 3.1, and .NET Framework 4.6.2 (Windows only).  The above example only shows .NET 6.0.
 
+## Referencing a pre-release build
+
+If there is a pre-release version of the driver available on [NuGet](https://www.nuget.org/packages/Vertica.Data), you will need to reference the specific version in your project.
+
+For example, to reference `23.3.0-rc`, modify the project file `PackageReference` as follows:
+```xml
+<ItemGroup>
+  <PackageReference Include="Vertica.Data" Version="23.3.0-rc" />
+</ItemGroup>
+```
+
 ### Referencing a DLL
 
 If you have the Vertica ADO.NET driver DLL, you can update the project to use the DLL directly:
