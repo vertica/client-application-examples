@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Vertica ADO.NET driver provides a data source for Vertica, so a client can connect and read/write data.  The driver is written in C# and built on .NET.
+The Vertica ADO.NET driver provides a data source for Vertica, so a client can connect and read/write data.  The driver is written in C# and built on .NET.  The published version can be found on NuGet [here](https://www.nuget.org/packages/Vertica.Data).
 
 See the available data types, commands, and other information [here](https://docs.vertica.com/latest/en/connecting-to/client-libraries/accessing/c/).
 
@@ -40,14 +40,7 @@ dotnet build
 ```
 3. Run the application:
 ```sh
-# Windows
-.\bin\Release\net6.0\win-x64\SampleApp.exe
-
-# Linux
-./bin/Release/net6.0/linux-x64/SampleApp
-
-# Mac
-./bin/Release/net6.0/osx-x64/SampleApp
+dotnet run --framework net6.0
 ```
 
 :information_source: Note that the sample app produces binaries for multiple target .NET versions: .NET 6.0, .NET Core 3.1, and .NET Framework 4.6.2 (Windows only).  The above example only shows .NET 6.0.
