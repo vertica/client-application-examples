@@ -2,7 +2,7 @@ using System;
 using System.Configuration;
 using Vertica.Data.VerticaClient;
 
-class SampleApp
+internal class SampleApp
 {
     static void Main(string[] args)
     {
@@ -10,7 +10,11 @@ class SampleApp
         using (VerticaConnection connection = new VerticaConnection())
         {
             connection.ConnectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-            
+            Console.WriteLine ("Vertica ADO.net sample application.");
+            Console.WriteLine ("-----------------------------------");
+            Console.WriteLine ("Running on {0}.", System.Environment.MachineName);
+            Console.WriteLine ("Using connection string: {0}.", connection.ConnectionString);
+
             try {
                 connection.Open();
             } 
@@ -26,12 +30,12 @@ class SampleApp
                 using (VerticaCommand command = connection.CreateCommand())
                 {
                     command.CommandText = ConfigurationManager.AppSettings["Query"];
-   
+                    Console.WriteLine ("Query: {0}", command.CommandText);
                     // Read the query results
                     using (VerticaDataReader reader = command.ExecuteReader())
                     {
-                        ResultSetPrinter printer = new ResultSetPrinter ();
-                        printer.printResults (reader);
+                        ResultSetPrinter printer = new ResultSetPrinter (reader);
+                        printer.printResults ();
                     }
                 }
             }             
