@@ -13,7 +13,7 @@ internal class SampleApp
             Console.WriteLine("Vertica ADO.NET sample application.");
             Console.WriteLine("-----------------------------------");
             Console.WriteLine("Running on {0}.", System.Environment.MachineName);
-            Console.WriteLine("Using connection string: {0}.", connection.ConnectionString);
+            Console.WriteLine("Using connection string: {0}", connection.ConnectionString);
 
             try {
                 connection.Open();
