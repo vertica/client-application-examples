@@ -99,9 +99,9 @@ internal class ResultSetPrinter {
             }
             return paddedString.Replace(' ', value);
         }
-
-        /* 
-        Utility function to prevent showing the password in the program output
+  
+        /*
+        Utility method to prevent showing the password in the program output
         */
         public static string printableConnectionString (String connectionString)
         {

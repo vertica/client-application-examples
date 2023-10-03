@@ -24,7 +24,6 @@ internal class SampleApp
                 return;
             }
 
-
             try {               
                 // Query the database
                 using (VerticaCommand command = connection.CreateCommand())
