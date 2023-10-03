@@ -14,7 +14,6 @@ internal class ResultSetPrinter {
         private VerticaDataReader m_reader;
         private ReadOnlyCollection<DbColumn> m_columns;
 
-
         public ResultSetPrinter(VerticaDataReader reader) {
             m_reader = reader;
             m_columns = m_reader.GetColumnSchema();
@@ -100,5 +99,25 @@ internal class ResultSetPrinter {
             }
             return paddedString.Replace(' ', value);
         }
+
+        /* 
+        Utility function to prevent showing the password in the program output
+        */
+        public static string printableConnectionString (String connectionString)
+        {
+            String printableConnectionString = "";
+            String [] properties = connectionString.Split(';');
+            foreach (String property in properties) {
+                if (printableConnectionString.Length > 0) {
+                    printableConnectionString+=";";
+                }
+                if (property.StartsWith("Password=")) {
+                    printableConnectionString+="Password=***";
+                } else {
+                    printableConnectionString+=property;
+                    Console.WriteLine(property);
+                }
+            }
+            return printableConnectionString;
+        }
     }
-    
