@@ -13,13 +13,13 @@ internal class SampleApp
             Console.WriteLine("Vertica ADO.NET sample application.");
             Console.WriteLine("-----------------------------------");
             Console.WriteLine("Running on {0}.", System.Environment.MachineName);
-            Console.WriteLine("Using connection string: {0}", ResultSetPrinter.printableConnectionString (connection.ConnectionString));
+            Console.WriteLine("Using connection string: {0}", ResultSetPrinter.printableConnectionString(connection.ConnectionString));
 
             try {
                 connection.Open();
             } 
             catch (Exception e) {
-                Console.WriteLine("Could not connect to {0}", ResultSetPrinter.printableConnectionString (connection.ConnectionString));
+                Console.WriteLine("Could not connect to {0}", ResultSetPrinter.printableConnectionString(connection.ConnectionString));
                 Console.WriteLine(e);
                 return;
             }
