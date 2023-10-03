@@ -115,8 +115,7 @@ internal class ResultSetPrinter {
                     printableConnectionString+="Password=***";
                 } else {
                     printableConnectionString+=property;
-                    Console.WriteLine(property);
-                }
+                 }
             }
             return printableConnectionString;
         }
