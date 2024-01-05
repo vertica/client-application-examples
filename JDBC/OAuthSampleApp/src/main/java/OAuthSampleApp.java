@@ -48,15 +48,11 @@ public class OAuthSampleApp implements Callable<Integer> {
     private String clientSecret = "";
 
     private static Connection connectToDB(String host, String port, String dbName, String accessToken,
-            String clientSecret, String refreshToken) throws SQLException {
+            String refreshToken, String clientSecret) throws SQLException {
         Properties jdbcOptions = new Properties();
         jdbcOptions.put("oauthaccesstoken", accessToken);
         jdbcOptions.put("oauthrefreshtoken", refreshToken);
-
-        // Put these options into static json config
-        String jsonConfig = "{ \"oauthclientsecret\" : \"" + clientSecret + "\" }";
-        System.out.println(jsonConfig);
-        jdbcOptions.put("oauthjsonconfig", jsonConfig);
+        jdbcOptions.put("oauthclientsecret", clientSecret);
 
         return DriverManager.getConnection(
                 "jdbc:vertica://" + host + ":" + port + "/" + dbName, jdbcOptions);
@@ -78,7 +74,7 @@ public class OAuthSampleApp implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         try {
-            Connection conn = connectToDB(host, port, dbName, accessToken, clientSecret, refreshToken);
+            Connection conn = connectToDB(host, port, dbName, accessToken, refreshToken, clientSecret);
             ResultSet rs = executeQuery(conn);
             printResults(rs);
             conn.close();
