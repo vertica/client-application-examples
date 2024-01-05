@@ -4,15 +4,15 @@
 
 This sample app was tested on Linux and Windows.
 
-The server must be configured for OAuth as described in the [Vertica documentation](https://docs.vertica.com/23.4.x/en/security-and-authentication/client-authentication/oauth-2-0-authentication/configuring-oauth-authentication/).
+The server must be configured for OAuth as described in the [Vertica documentation](https://docs.vertica.com/24.1.x/en/security-and-authentication/client-authentication/oauth-2-0-authentication/configuring-oauth-authentication/).
 
 # Running the ODBC sample app
 
 1. Run `sudo yum install unixODBC-devel` (allows include `sql.h`)
 2. Install the Vertica ODBC driver:
 ```
-wget https://www.vertica.com/client_drivers/23.4.x/23.4.0-0/vertica-client-23.4.0-0.x86_64.rpm
-sudo yum localinstall vertica-client-23.4.0-0.x86_64.rpm
+wget https://www.vertica.com/client_drivers/24.1.x/24.1.0-0/vertica-client-24.1.0-0.x86_64.rpm
+sudo yum localinstall vertica-client-24.1.0-0.x86_64.rpm
 ```
 3. Create `~/.odbc.ini`
 4. Put this in the `odbc.ini` file:
