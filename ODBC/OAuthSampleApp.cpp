@@ -74,18 +74,10 @@ void connectToDB(
     SQLHDBC &hdlDbc,
     std::string accessToken,
     std::string refreshToken,
-    std::string clientId,
-    std::string clientSecret,
-    std::string tokenUrl,
-    std::string scope)
+    std::string clientSecret)
 {
     // Construct json config for static oauth config
-    std::string jsonConfig = std::string("{") +
-	"\"oauthtokenurl\" : \"" + tokenUrl + "\", " +
-        "\"oauthclientid\" : \"" + clientId + "\", " +
-        "\"oauthclientsecret\" : \"" + clientSecret + "\", " +
-        "\"oauthscope\" : \"" + scope + "\"" +
-        "}";
+    std::string jsonConfig = std::string("{\"oauthclientsecret\" : \"" + clientSecret + "\"}");
 
     // Connect to the database
     std::cout << "Connecting to database." << std::endl;
@@ -165,23 +157,17 @@ int main(int argc, char **argv)
     // Parse command-line parameters
     std::string accessToken;
     std::string refreshToken;
-    std::string clientId;
     std::string clientSecret;
-    std::string tokenUrl;
-    std::string scope;
     static struct option long_options[] = {
         {"access-token", required_argument, 0, 'a'},
         {"refresh-token", required_argument, 0, 'b'},
-        {"client-id", required_argument, 0, 'c'},
-        {"client-secret", required_argument, 0, 'd'},
-        {"token-url", required_argument, 0, 'e'},
-        {"scope", required_argument, 0, 'f'},
+        {"client-secret", required_argument, 0, 'd'}
     };
     int c;
     while (1)
     {
         int option_index = 0;
-        c = getopt_long(argc, argv, "a:b:c:d:e:f:", long_options, &option_index);
+        c = getopt_long(argc, argv, "a:b:d:", long_options, &option_index);
         if (c == -1)
             break;
         switch (c)
@@ -192,17 +178,8 @@ int main(int argc, char **argv)
         case 'b':
             refreshToken = optarg;
             break;
-        case 'c':
-            clientId = optarg;
-            break;
         case 'd':
             clientSecret = optarg;
-            break;
-        case 'e':
-            tokenUrl = optarg;
-            break;
-	case 'f':
-            scope = optarg;
             break;
         default:
             break;
@@ -212,7 +189,7 @@ int main(int argc, char **argv)
     SQLHENV hdlEnv;
     SQLHDBC hdlDbc;
     setupOdbcEnvironment(ret, hdlEnv, hdlDbc);
-    connectToDB(ret, hdlDbc, accessToken, refreshToken, clientId, clientSecret, tokenUrl, scope);
+    connectToDB(ret, hdlDbc, accessToken, refreshToken, clientSecret);
 
     SQLHSTMT hdlStmt;
     SQLBIGINT table_id;       // Holds the ID of the table

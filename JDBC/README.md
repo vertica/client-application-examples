@@ -24,9 +24,5 @@ Possible options:
 -p, --port <port number>
 -a, --access-token <access token>
 -r, --refresh-token <refresh token>
--i, --client-id <client ID>
 -s, --client-secret <client secret>
--t, --token-url <token URL>
--sc, --scope <scope>
--v, --validate-hostname
 ```
