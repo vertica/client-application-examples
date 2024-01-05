@@ -77,7 +77,7 @@ void connectToDB(
     std::string clientSecret)
 {
     // Construct json config for static oauth config
-    std::string jsonConfig = std::string("{\"oauthclientsecret\" : \"" + clientSecret + "\"}";
+    std::string jsonConfig = std::string("{\"oauthclientsecret\" : \"" + clientSecret + "\"}");
 
     // Connect to the database
     std::cout << "Connecting to database." << std::endl;
