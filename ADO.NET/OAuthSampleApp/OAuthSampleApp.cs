@@ -1,6 +1,5 @@
 ﻿using Vertica.Data.VerticaClient;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 using System.Configuration;
 
 internal class OAuthSampleApp
@@ -10,9 +9,6 @@ internal class OAuthSampleApp
         VerticaConnectionStringBuilder vcsb = new VerticaConnectionStringBuilder();
         vcsb.ConnectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
 
-        // json config is required if doing token refresh
-        // comment out line below if only using access token
-        vcsb.OAuthJsonConfig = GetTokenRefreshJsonConfig();
         ConnectToDatabase(vcsb.ConnectionString);
     }
 
@@ -45,22 +41,7 @@ internal class OAuthSampleApp
         }
     }
 
-    // Client ID, client secret, and one of token or discovery url must be set in order to do token refresh
-    private static string GetTokenRefreshJsonConfig()
-    {
-        string jsonContent = File.ReadAllText("OAuthRefreshSettings.json");
-        Dictionary<string, string> settings = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonContent);
-
-        return @$"
-    {{
-        ""OAuthTokenUrl"": ""{settings.GetValueOrDefault("OAuthTokenUrl", string.Empty)}"",
-        ""OAuthDiscoveryUrl"": ""{settings.GetValueOrDefault("OAuthDiscoveryUrl", string.Empty)}"",
-        ""OAuthClientId"": ""{settings.GetValueOrDefault("OAuthClientId", string.Empty)}"",
-        ""OAuthClientSecret"": ""{settings.GetValueOrDefault("OAuthClientSecret", string.Empty)}""
-    }}";
-    }
-
-    // helper function to get tokenType of 'access_token' or 'refresh_token'
+    // returns an access token that you can add to the connection string
     public static async Task<string> GetToken(string tokenType, string clientID, string clientSecret, string user, string password, string tokenUrl)
     {
         HttpClient httpClient = new HttpClient();
@@ -82,7 +63,7 @@ internal class OAuthSampleApp
 
             var result = await response.Content.ReadAsStringAsync();
             JObject jObject = JObject.Parse(result);
-            return jObject[tokenType].ToString();
+            return jObject["access_token"].ToString();
         }
         catch (HttpRequestException ex)
         {

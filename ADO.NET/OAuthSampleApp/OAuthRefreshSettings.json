@@ -1,6 +1,0 @@
-{
-  "OAuthTokenUrl": "your_token_url",
-  "OAuthDiscoveryUrl": "your_discovery_url",
-  "OAuthClientId": "your_client_id",
-  "OAuthClientSecret": "your_client_secret"
-}

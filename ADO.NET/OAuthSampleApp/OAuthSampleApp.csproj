@@ -12,10 +12,4 @@
 		<PackageReference Include="Vertica.Data" Version="24.1.0" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <None Update="OAuthRefreshSettings.json">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
-	</ItemGroup>
-
 </Project>
