@@ -75,7 +75,7 @@ internal class OAuthSampleApp
         if (string.IsNullOrEmpty(accessToken))
         {
             // Obtain first access token
-            Console.WriteLine("Access token not found. Obtaining new token...");
+            Console.WriteLine("Access token not found. Obtaining first access token from IDP.");
             await DoPasswordGrant();
         }
 
@@ -133,12 +133,13 @@ internal class OAuthSampleApp
                 if (retryCount > 0) { break; }
                 try
                 {
+                    Console.WriteLine("Access token invalid or expired. Attempting token refresh.");
                     await DoTokenRefresh();
                 }
                 catch (HttpRequestException hre)
                 {
                     Console.WriteLine(hre.Message);
-                    Console.WriteLine("Attempting to get new access and refresh tokens");
+                    Console.WriteLine("Refresh token invalid or expired. Attempting to get new access and refresh tokens");
                     await DoPasswordGrant();
                 }
 
