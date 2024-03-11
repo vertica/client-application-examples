@@ -2,13 +2,14 @@
 using Newtonsoft.Json.Linq;
 using System.Configuration;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 internal class OAuthSampleApp
 {
     private static VerticaConnectionStringBuilder connectionStringBuilder;
     private static VerticaConnection vConnection;
-    private const string OAUTH_ACCESS_TOKEN = "OAUTH_SAMPLE_ACCESS_TOKEN";
-    private const string OAUTH_REFRESH_TOKEN = "OAUTH_SAMPLE_REFRESH_TOKEN";
+    private const string OAUTH_ACCESS_TOKEN_VAR_STRING = "OAUTH_SAMPLE_ACCESS_TOKEN";
+    private const string OAUTH_REFRESH_TOKEN_VAR_STRING = "OAUTH_SAMPLE_REFRESH_TOKEN";
 
     static async Task Main(string[] args)
     {
@@ -16,10 +17,6 @@ internal class OAuthSampleApp
         connectionStringBuilder.ConnectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
 
         await SetUp();
-
-        // change the user from the dbadmin to OAuth user
-        connectionStringBuilder.User = ConfigurationManager.AppSettings["User"];
-
         await EnsureAccessToken();
         await ConnectToDatabase();
         await TearDown();
@@ -57,7 +54,7 @@ internal class OAuthSampleApp
         cmd.ExecuteNonQuery();
     }
 
-    // removes the oauth user and closes the connection for the admin
+    // removes the oauth user and closes the admin connection
     public static async Task TearDown()
     {
         string USER = ConfigurationManager.AppSettings["User"];
@@ -70,24 +67,25 @@ internal class OAuthSampleApp
     }
 
     // if no access token is set, obtains and sets first access and refresh tokens
+    // uses the password grant flow
     static async Task EnsureAccessToken()
     {
-        string accessToken = Environment.GetEnvironmentVariable(OAUTH_ACCESS_TOKEN, EnvironmentVariableTarget.User);
+        string accessToken = Environment.GetEnvironmentVariable(OAUTH_ACCESS_TOKEN_VAR_STRING, EnvironmentVariableTarget.User);
 
         if (string.IsNullOrEmpty(accessToken))
         {
             // Obtain first access token
             Console.WriteLine("Access token not found. Obtaining new token...");
-            await GetAndSetTokens("password");
+            await DoPasswordGrant();
         }
 
         SetAccessToken();
     }
 
-    // only the access token is set in the connection string
+    // the access token must be set in the connection string
     static void SetAccessToken()
     {
-        string accessToken = Environment.GetEnvironmentVariable(OAUTH_ACCESS_TOKEN, EnvironmentVariableTarget.User);
+        string accessToken = Environment.GetEnvironmentVariable(OAUTH_ACCESS_TOKEN_VAR_STRING, EnvironmentVariableTarget.User);
         connectionStringBuilder["OAuthAccessToken"] = accessToken;
     }
 
@@ -96,6 +94,10 @@ internal class OAuthSampleApp
     // If the refresh token is expired, we get new access and refresh tokens
     public static async Task ConnectToDatabase()
     {
+        // ADO.NET requires a user in the connection string
+        // It is ignored by the driver, and only the access token is used
+        // The user can be set to any value (except the admin) and it will connect
+        connectionStringBuilder.User = ConfigurationManager.AppSettings["User"];
         int retryCount = 0;
 
         while (retryCount <= 1)
@@ -110,6 +112,8 @@ internal class OAuthSampleApp
                     using (VerticaCommand command = conn.CreateCommand())
                     {
                         Console.WriteLine("Connection Successful");
+
+                        // change the query in app.config or make the command text a string literal
                         command.CommandText = ConfigurationManager.AppSettings["Query"];
                         using (VerticaDataReader reader = command.ExecuteReader())
                         {
@@ -129,13 +133,13 @@ internal class OAuthSampleApp
                 if (retryCount > 0) { break; }
                 try
                 {
-                    await GetAndSetTokens("refresh_token");
+                    await DoTokenRefresh();
                 }
                 catch (HttpRequestException hre)
                 {
                     Console.WriteLine(hre.Message);
                     Console.WriteLine("Attempting to get new access and refresh tokens");
-                    await GetAndSetTokens("password");
+                    await DoPasswordGrant();
                 }
 
                 SetAccessToken();
@@ -143,51 +147,47 @@ internal class OAuthSampleApp
             }
         }
     }
-    public static async Task GetAndSetTokens(string grantType)
-    {
-        // Read OAuth parameters from app.config
-        string clientId = ConfigurationManager.AppSettings["ClientId"];
-        string clientSecret = ConfigurationManager.AppSettings["ClientSecret"];
-        string user = ConfigurationManager.AppSettings["User"];
-        string password = ConfigurationManager.AppSettings["Password"];
-        string tokenUrl = ConfigurationManager.AppSettings["TokenUrl"];
 
+    // password grant logs into the IDP using credentials in app.config
+    public static async Task DoPasswordGrant()
+    {
+        Dictionary<string, string> formData = new Dictionary<string, string>
+        {
+            {"grant_type",   "password"},
+            {"client_id",     ConfigurationManager.AppSettings["ClientId"]},
+            {"client_secret", ConfigurationManager.AppSettings["ClientSecret"]},
+            {"username",      ConfigurationManager.AppSettings["User"]},
+            {"password",      ConfigurationManager.AppSettings["Password"]}
+        };
+
+        await GetAndSetTokens(formData);
+    }
+
+    // refresh grant uses the refresh token to get a new access and refresh token
+    public static async Task DoTokenRefresh()
+    {
+        Dictionary<string, string> formData = new Dictionary<string, string>
+        {
+            {"grant_type",   "refresh_token"},
+            {"client_id",     ConfigurationManager.AppSettings["ClientId"]},
+            {"client_secret", ConfigurationManager.AppSettings["ClientSecret"]},
+            {"refresh_token", Environment.GetEnvironmentVariable(OAUTH_REFRESH_TOKEN_VAR_STRING, EnvironmentVariableTarget.User)}
+        };
+
+        await GetAndSetTokens(formData);
+    }
+
+    // uses the token url from the config to make an http request
+    // will always always set new access and refresh tokens, even if currently valid
+    private static async Task GetAndSetTokens(Dictionary<string, string> formData)
+    {
         HttpClient httpClient = new HttpClient();
 
         try
         {
-            Dictionary<string, string> formData;
-
-            if (grantType == "password")
-            {
-                formData = new Dictionary<string, string>
-            {
-                {"grant_type", "password"},
-                {"client_id", clientId},
-                {"client_secret", clientSecret},
-                {"username", user},
-                {"password", password}
-            };
-            }
-            else if (grantType == "refresh_token")
-            {
-                string refreshToken = Environment.GetEnvironmentVariable(OAUTH_REFRESH_TOKEN, EnvironmentVariableTarget.User);
-
-                formData = new Dictionary<string, string>
-            {
-                {"grant_type", "refresh_token"},
-                {"client_id", clientId},
-                {"client_secret", clientSecret},
-                {"refresh_token", refreshToken}
-            };
-            }
-            else
-            {
-                throw new ArgumentException("Invalid grant type");
-            }
-
             var content = new FormUrlEncodedContent(formData);
 
+            string tokenUrl = ConfigurationManager.AppSettings["TokenUrl"];
             var response = await httpClient.PostAsync(tokenUrl, content);
 
             response.EnsureSuccessStatusCode();
@@ -196,10 +196,10 @@ internal class OAuthSampleApp
             JObject jObject = JObject.Parse(result);
 
             // Set the access token as an environment variable
-            Environment.SetEnvironmentVariable(OAUTH_ACCESS_TOKEN, jObject["access_token"].ToString(), EnvironmentVariableTarget.User);
+            Environment.SetEnvironmentVariable(OAUTH_ACCESS_TOKEN_VAR_STRING, jObject["access_token"].ToString(), EnvironmentVariableTarget.User);
 
             // Set the refresh token as an environment variable
-            Environment.SetEnvironmentVariable(OAUTH_REFRESH_TOKEN, jObject["refresh_token"].ToString(), EnvironmentVariableTarget.User);
+            Environment.SetEnvironmentVariable(OAUTH_REFRESH_TOKEN_VAR_STRING, jObject["refresh_token"].ToString(), EnvironmentVariableTarget.User);
         }
         catch (Exception ex)
         {
