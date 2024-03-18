@@ -1,8 +1,7 @@
-﻿using Vertica.Data.VerticaClient;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System.Configuration;
 using System.Runtime.InteropServices;
-using System.ComponentModel;
+using Vertica.Data.VerticaClient;
 
 internal class OAuthSampleApp
 {
@@ -16,7 +15,7 @@ internal class OAuthSampleApp
         connectionStringBuilder = new VerticaConnectionStringBuilder();
         connectionStringBuilder.ConnectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
 
-        await SetUp();
+        await SetUpDbForOAuth();
         await EnsureAccessToken();
         await ConnectToDatabase();
         await TearDown();
@@ -24,40 +23,42 @@ internal class OAuthSampleApp
 
     // admin must log in and setup the user for OAuth
     // steps can also be followed in vsql
-    static async Task SetUp()
+    static async Task SetUpDbForOAuth()
     {
         vConnection = new VerticaConnection(connectionStringBuilder.ConnectionString);
         vConnection.Open();
 
-        string USER = ConfigurationManager.AppSettings["User"];
-        string CLIENT_ID = ConfigurationManager.AppSettings["ClientId"];
-        string CLIENT_SECRET = ConfigurationManager.AppSettings["ClientSecret"];
-        string INTROSPECT_URL = ConfigurationManager.AppSettings["TokenUrl"] + "introspect";
+        string USER = getSetting("User");
+        string CLIENT_ID = getSetting("ClientId");
+        string CLIENT_SECRET = getSetting("ClientSecret");
+        string INTROSPECT_URL = getSetting("TokenUrl") + "introspect";
 
-        VerticaCommand cmd = new VerticaCommand("DROP USER IF EXISTS " + USER + " CASCADE", vConnection);
-        cmd.ExecuteNonQuery();
-        cmd.CommandText = "DROP AUTHENTICATION IF EXISTS adooauth CASCADE";
-        cmd.ExecuteNonQuery();
-        cmd.CommandText = "CREATE USER " + USER;
-        cmd.ExecuteNonQuery();
-        cmd.CommandText = "CREATE AUTHENTICATION adooauth METHOD 'oauth'" + GetAuthHost();
-        cmd.ExecuteNonQuery();
-        cmd.CommandText = "GRANT AUTHENTICATION adooauth TO " + USER;
-        cmd.ExecuteNonQuery();
-        cmd.CommandText = "GRANT ALL ON SCHEMA PUBLIC TO " + USER;
-        cmd.ExecuteNonQuery();
-        cmd.CommandText = "ALTER AUTHENTICATION adooauth SET client_id = '" + CLIENT_ID + "'";
-        cmd.ExecuteNonQuery();
-        cmd.CommandText = "ALTER AUTHENTICATION adooauth SET client_secret = '" + CLIENT_SECRET + "'";
-        cmd.ExecuteNonQuery();
-        cmd.CommandText = "ALTER AUTHENTICATION adooauth SET introspect_url = '" + INTROSPECT_URL + "'";
-        cmd.ExecuteNonQuery();
+        VerticaCommand cmd = new VerticaCommand("", vConnection);
+        string[] sqlCommands =
+        {
+            "DROP USER IF EXISTS " + USER + " CASCADE",
+            "DROP AUTHENTICATION IF EXISTS adooauth CASCADE",
+            "CREATE USER " + USER,
+            "CREATE AUTHENTICATION adooauth METHOD 'oauth'" + GetAuthHost(),
+            "GRANT AUTHENTICATION adooauth TO " + USER,
+            "GRANT ALL ON SCHEMA PUBLIC TO " + USER,
+            "ALTER AUTHENTICATION adooauth SET client_id = '" + CLIENT_ID + "'",
+            "ALTER AUTHENTICATION adooauth SET client_secret = '" + CLIENT_SECRET + "'",
+            "ALTER AUTHENTICATION adooauth SET introspect_url = '" + INTROSPECT_URL + "'",
+        };
+
+        // Execute each SQL command in the array
+        foreach (string commandText in sqlCommands)
+        {
+            cmd.CommandText = commandText;
+            cmd.ExecuteNonQuery();
+        }
     }
 
     // removes the oauth user and closes the admin connection
     public static async Task TearDown()
     {
-        string USER = ConfigurationManager.AppSettings["User"];
+        string USER = getSetting("User");
         VerticaCommand cmd = new VerticaCommand("DROP USER IF EXISTS " + USER + " CASCADE", vConnection);
         cmd.ExecuteNonQuery();
         cmd.CommandText = "DROP AUTHENTICATION IF EXISTS adooauth CASCADE";
@@ -76,7 +77,7 @@ internal class OAuthSampleApp
         {
             // Obtain first access token
             Console.WriteLine("Access token not found. Obtaining first access token from IDP.");
-            await DoPasswordGrant();
+            await GetTokensByPasswordGrant();
         }
 
         SetAccessToken();
@@ -97,10 +98,10 @@ internal class OAuthSampleApp
         // ADO.NET requires a user in the connection string
         // It is ignored by the driver, and only the access token is used
         // The user can be set to any value (except the admin) and it will connect
-        connectionStringBuilder.User = ConfigurationManager.AppSettings["User"];
-        int retryCount = 0;
+        connectionStringBuilder.User = getSetting("User");
+        int connAttemptCount = 0;
 
-        while (retryCount <= 1)
+        while (connAttemptCount <= 1)
         {
             try
             {
@@ -114,7 +115,7 @@ internal class OAuthSampleApp
                         Console.WriteLine("Connection Successful");
 
                         // change the query in app.config or make the command text a string literal
-                        command.CommandText = ConfigurationManager.AppSettings["Query"];
+                        command.CommandText = getSetting("Query");
                         using (VerticaDataReader reader = command.ExecuteReader())
                         {
                             Console.WriteLine("Executing Query: " + command.CommandText);
@@ -130,48 +131,48 @@ internal class OAuthSampleApp
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                if (retryCount > 0) { break; }
+                if (connAttemptCount > 0) { break; }
                 try
                 {
                     Console.WriteLine("Access token invalid or expired. Attempting token refresh.");
-                    await DoTokenRefresh();
+                    await GetTokensByRefreshGrant();
                 }
                 catch (HttpRequestException hre)
                 {
                     Console.WriteLine(hre.Message);
                     Console.WriteLine("Refresh token invalid or expired. Attempting to get new access and refresh tokens");
-                    await DoPasswordGrant();
+                    await GetTokensByPasswordGrant();
                 }
 
                 SetAccessToken();
-                retryCount++;
+                connAttemptCount++;
             }
         }
     }
 
     // password grant logs into the IDP using credentials in app.config
-    public static async Task DoPasswordGrant()
+    public static async Task GetTokensByPasswordGrant()
     {
         Dictionary<string, string> formData = new Dictionary<string, string>
         {
             {"grant_type",   "password"},
-            {"client_id",     ConfigurationManager.AppSettings["ClientId"]},
-            {"client_secret", ConfigurationManager.AppSettings["ClientSecret"]},
-            {"username",      ConfigurationManager.AppSettings["User"]},
-            {"password",      ConfigurationManager.AppSettings["Password"]}
+            {"client_id",     getSetting("ClientId")},
+            {"client_secret", getSetting("ClientSecret")},
+            {"username",      getSetting("User")},
+            {"password",      getSetting("Password")}
         };
 
         await GetAndSetTokens(formData);
     }
 
     // refresh grant uses the refresh token to get a new access and refresh token
-    public static async Task DoTokenRefresh()
+    public static async Task GetTokensByRefreshGrant()
     {
         Dictionary<string, string> formData = new Dictionary<string, string>
         {
             {"grant_type",   "refresh_token"},
-            {"client_id",     ConfigurationManager.AppSettings["ClientId"]},
-            {"client_secret", ConfigurationManager.AppSettings["ClientSecret"]},
+            {"client_id",     getSetting("ClientId")},
+            {"client_secret", getSetting("ClientSecret")},
             {"refresh_token", Environment.GetEnvironmentVariable(OAUTH_REFRESH_TOKEN_VAR_STRING, EnvironmentVariableTarget.User)}
         };
 
@@ -188,7 +189,7 @@ internal class OAuthSampleApp
         {
             var content = new FormUrlEncodedContent(formData);
 
-            string tokenUrl = ConfigurationManager.AppSettings["TokenUrl"];
+            string tokenUrl = getSetting("TokenUrl");
             var response = await httpClient.PostAsync(tokenUrl, content);
 
             response.EnsureSuccessStatusCode();
@@ -199,16 +200,25 @@ internal class OAuthSampleApp
             // Set the access token as an environment variable
             Environment.SetEnvironmentVariable(OAUTH_ACCESS_TOKEN_VAR_STRING, jObject["access_token"].ToString(), EnvironmentVariableTarget.User);
 
-            // Set the refresh token as an environment variable
-            Environment.SetEnvironmentVariable(OAUTH_REFRESH_TOKEN_VAR_STRING, jObject["refresh_token"].ToString(), EnvironmentVariableTarget.User);
+            // Set the refresh token as an environment variable if IDP returns one
+            if (jObject["refresh_token"] != null)
+            {
+                Environment.SetEnvironmentVariable(OAUTH_REFRESH_TOKEN_VAR_STRING, jObject["refresh_token"].ToString(), EnvironmentVariableTarget.User);
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error getting access token: " + ex.Message);
+            Console.WriteLine("Error getting refresh and/or access tokens: " + ex.Message);
             throw;
         }
     }
 
+    static string getSetting(String setting)
+    {
+        return ConfigurationManager.AppSettings[setting] ?? "";
+    }
+
+    // default hosts depending on OS
     static string GetAuthHost()
     {
         return RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "LOCAL" : "HOST '0.0.0.0/0'";

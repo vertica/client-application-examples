@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-		<Compile Include="..\shared\**\*.cs" />
-	</ItemGroup>
+    <Compile Include="..\shared\**\*.cs" />
+  </ItemGroup>
 
 </Project>

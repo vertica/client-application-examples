@@ -1,10 +1,10 @@
 ## Overview
 
-The sample application is meant to get you get started using the ADO.NET driver for Vertica. It connects using a connection string, exeutes a query, and prints the results.
+The sample application is meant to get you get started using the ADO.NET driver for Vertica. It connects using a connection string, executes a query, and prints the results.
 
 # Prerequisites
 
-For information on installing .NET, starting a Vertica docker container, and how to reference a NuGet package, see the README.md in the ADO.NET base directory.
+For information on installing .NET, starting a vertica-ce docker container, and how to reference a NuGet package, see the [README.md](https://github.com/vertica/client-application-examples/blob/main/ADO.NET/README.md) in the ADO.NET root directory.
 
 # Configuring the sample application
 

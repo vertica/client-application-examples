@@ -6,11 +6,11 @@ This sample application was built in .NET 6.0 and can be run in .NET Framework 4
 
 # Prerequisites
 
-For information on installing .NET, starting a Vertica docker container, and how to reference a NuGet package, see the README.md in the ADO.NET base directory.
+For information on installing .NET, starting a Vertica docker container, and how to reference a NuGet package, see the [README.md](https://github.com/vertica/client-application-examples/blob/main/ADO.NET/README.md) in the ADO.NET base directory.
 
 # Using OAuth to login
 
-You must first configure the Vertica server for OAuth as described here: https://docs.vertica.com/24.1.x/en/security-and-authentication/client-authentication/oauth-2-0-authentication/configuring-oauth-authentication/.
+You must first configure the Vertica server for OAuth as described here: https://docs.vertica.com/latest/en/security-and-authentication/client-authentication/oauth-2-0-authentication/configuring-oauth-authentication/.
 The steps can also be done programatically as shown in the SetUp method.
 
 The doc describes how to get an access token through Curl, but the sample app has functions for getting access and refresh tokens.
@@ -21,7 +21,7 @@ The authentication steps are:
 
 This app stores confidential information like the client secret in the app.config file for ease of use. Use proper secret management tools in production.
 
-Note: The token url should be in the form of "http://192.168.0.255:8080/realms/test/protocol/openid-connect/token/"
+Note: The token url (if using Keycloak) should be in the form of "http://192.168.0.255:8080/realms/test/protocol/openid-connect/token/"
 
 # Running the app
 
