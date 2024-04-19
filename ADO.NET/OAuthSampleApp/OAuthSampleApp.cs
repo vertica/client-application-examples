@@ -71,13 +71,35 @@ internal class OAuthSampleApp
     // uses the password grant flow
     static async Task EnsureAccessToken()
     {
+        string refreshToken = Environment.GetEnvironmentVariable(OAUTH_REFRESH_TOKEN_VAR_STRING, EnvironmentVariableTarget.User);
         string accessToken = Environment.GetEnvironmentVariable(OAUTH_ACCESS_TOKEN_VAR_STRING, EnvironmentVariableTarget.User);
 
         if (string.IsNullOrEmpty(accessToken))
         {
-            // Obtain first access token
-            Console.WriteLine("Access token not found. Obtaining first access token from IDP.");
-            await GetTokensByPasswordGrant();
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                // Obtain first access token
+                Console.WriteLine("Access token not found. Obtaining first access token from IDP.");
+                await GetTokensByPasswordGrant();
+            }
+            else
+            {
+                try
+                {
+                    // attempt to use given refresh token
+                    Console.WriteLine("Attempting to use given refresh token.");
+                    await GetTokensByRefreshGrant();
+                }
+                catch (HttpRequestException hre)
+                {
+                    Console.WriteLine(hre.Message);
+                    Console.WriteLine("Initial refresh token has expired. Getting new access and refresh tokens.");
+                    await GetTokensByPasswordGrant();
+                }
+            }
+        } else
+        {
+            Console.WriteLine("Access token found in environment variable.");
         }
 
         SetAccessToken();
