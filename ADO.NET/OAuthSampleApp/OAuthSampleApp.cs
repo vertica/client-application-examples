@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Configuration;
+using System.Net;
 using System.Runtime.InteropServices;
 using Vertica.Data.VerticaClient;
 
@@ -14,11 +15,16 @@ internal class OAuthSampleApp
     {
         connectionStringBuilder = new VerticaConnectionStringBuilder();
         connectionStringBuilder.ConnectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-
-        await SetUpDbForOAuth();
-        await EnsureAccessToken();
-        await ConnectToDatabase();
-        await TearDown();
+        try
+        {
+            await SetUpDbForOAuth();
+            await EnsureAccessToken();
+            await ConnectToDatabase();
+        }
+        finally
+        {
+            await TearDown();
+        }
     }
 
     // admin must log in and setup the user for OAuth
@@ -79,7 +85,7 @@ internal class OAuthSampleApp
             if (string.IsNullOrEmpty(refreshToken))
             {
                 // Obtain first access token
-                Console.WriteLine("Access token not found. Obtaining first access token from IDP.");
+                Console.WriteLine("Access and refresh tokens not found. Obtaining first access token from IDP.");
                 await GetTokensByPasswordGrant();
             }
             else
@@ -92,7 +98,6 @@ internal class OAuthSampleApp
                 }
                 catch (HttpRequestException hre)
                 {
-                    Console.WriteLine(hre.Message);
                     Console.WriteLine("Initial refresh token has expired. Getting new access and refresh tokens.");
                     await GetTokensByPasswordGrant();
                 }
@@ -161,7 +166,6 @@ internal class OAuthSampleApp
                 }
                 catch (HttpRequestException hre)
                 {
-                    Console.WriteLine(hre.Message);
                     Console.WriteLine("Refresh token invalid or expired. Attempting to get new access and refresh tokens");
                     await GetTokensByPasswordGrant();
                 }
@@ -206,13 +210,14 @@ internal class OAuthSampleApp
     private static async Task GetAndSetTokens(Dictionary<string, string> formData)
     {
         HttpClient httpClient = new HttpClient();
+        HttpResponseMessage response = null;
 
         try
         {
             var content = new FormUrlEncodedContent(formData);
 
             string tokenUrl = getSetting("TokenUrl");
-            var response = await httpClient.PostAsync(tokenUrl, content);
+            response = await httpClient.PostAsync(tokenUrl, content);
 
             response.EnsureSuccessStatusCode();
 
@@ -228,10 +233,26 @@ internal class OAuthSampleApp
                 Environment.SetEnvironmentVariable(OAUTH_REFRESH_TOKEN_VAR_STRING, jObject["refresh_token"].ToString(), EnvironmentVariableTarget.User);
             }
         }
+        catch (HttpRequestException ex)
+        {
+            if (response != null)
+            {
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    Console.WriteLine("Unauthorized: Check that your client ID and/or secret are correct.");
+                }
+                else if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    Console.WriteLine("Not Found: Check that your token URL is correct.");
+                }
+            }
+            Console.WriteLine("HTTP Request Error: " + ex.Message);
+            throw new Exception("Error getting refresh and/or access tokens.", ex);
+        }
         catch (Exception ex)
         {
-            Console.WriteLine("Error getting refresh and/or access tokens: " + ex.Message);
-            throw;
+            Console.WriteLine("Unexpected Error: " + ex.Message);
+            throw new Exception("Error getting refresh and/or access tokens.", ex);
         }
     }
 
