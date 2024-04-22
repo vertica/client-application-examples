@@ -18,10 +18,10 @@ This sample application was built in .NET 6.0 and can be run in .NET Framework 4
 You'll need Vertica (at least 12.1) and the ADO.NET driver (at least 24.1).
 An IDP (like Keycloak or Okta) will need to be configured to handle OAuth.
 
-# Using OAuth to login
+# Configuring the server to use OAuth
 
-You must first configure the Vertica server for OAuth as described here: https://docs.vertica.com/latest/en/security-and-authentication/client-authentication/oauth-2-0-authentication/configuring-oauth-authentication/.
-The steps in the link are done programmatically in the SetUpDbForOAuth() method.
+The application sets up the server to do OAuth programmatically in the SetUpDbForOAuth() method. 
+If you want to configure the server manually, check out the documentation here: https://docs.vertica.com/latest/en/security-and-authentication/client-authentication/oauth-2-0-authentication/configuring-oauth-authentication/.
 
 The doc describes how to get an access token through Curl, but the sample app has functions for getting access and refresh tokens.
 
