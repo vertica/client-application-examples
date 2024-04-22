@@ -1,9 +1,7 @@
-host=localhost
-port=5433
-dbName=VMart
-adminUser=dbuser
-adminUserPassword=dbuser
-oAuthUser=testuser
+connectionString=jdbc:vertica://localhost:5433/VMart
+adminUser=dbadmin
+adminUserPassword=dbadmin
+oAuthUser=demouser
 authName=jdbcoauth
 clientId=clientname
 clientSecret=clientsecret

@@ -14,9 +14,7 @@ import com.google.gson.JsonObject;
 
 public class OAuthHandler {
     // set these in the properties file to match your configuration
-    String host = "";
-    String port = "";
-    String dbName = "";
+    String connectionString = "";
     String adminUser = "";
     String adminUserPassword = "";
     String oAuthUser = "";
@@ -49,9 +47,7 @@ public class OAuthHandler {
     private void loadStartProperties(String filename) throws IOException {
         Properties props = new Properties();
         props.load(new FileReader(filename));
-        host = props.getProperty("host");
-        port = props.getProperty("port");
-        dbName = props.getProperty("dbName");
+        connectionString = props.getProperty("connectionString");
         adminUser = props.getProperty("adminUser");
         adminUserPassword = props.getProperty("adminUserPassword");
         oAuthUser = props.getProperty("oAuthUser");
@@ -90,7 +86,7 @@ public class OAuthHandler {
         Properties jdbcOptions = new Properties();
         jdbcOptions.put("user", adminUser);
         jdbcOptions.put("password", adminUserPassword);
-        Connection conn = DriverManager.getConnection("jdbc:vertica://" + host + ":" + port + "/" + dbName, jdbcOptions);
+        Connection conn = DriverManager.getConnection(connectionString, jdbcOptions);
         return conn;
     }
 
@@ -100,8 +96,8 @@ public class OAuthHandler {
         Properties jdbcOptions = new Properties();
         jdbcOptions.put("oauthauthenticator", "browser");
         jdbcOptions.put("oauthjsonconfig", jsonConfigFromFile);
-
-        Connection conn = DriverManager.getConnection("jdbc:vertica://" + host + ":" + port + "/" + dbName, jdbcOptions);
+        
+        Connection conn = DriverManager.getConnection(connectionString, jdbcOptions);
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery("SELECT CURRENT_USER;");
         while (rs.next()) {
