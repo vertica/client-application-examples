@@ -21,7 +21,7 @@ An IDP (like Keycloak or Okta) will need to be configured to handle OAuth.
 # Using OAuth to login
 
 You must first configure the Vertica server for OAuth as described here: https://docs.vertica.com/latest/en/security-and-authentication/client-authentication/oauth-2-0-authentication/configuring-oauth-authentication/.
-The steps can also be done programatically as shown in the SetUp method.
+The steps in the link are done programmatically in the SetUpDbForOAuth() method.
 
 The doc describes how to get an access token through Curl, but the sample app has functions for getting access and refresh tokens.
 
@@ -32,7 +32,7 @@ Note: The token url (if using Keycloak) should be in the form of "http://192.168
 # Running the app
 
 To run the sample app, fill out the app.config file. It has two sections.
-The 'connection string' section is for the default superuser. This is for logging in to setup the OAuth user. If you have already setup OAuth in Vertica, ignore it.
+The 'connection string' section is for the default superuser. This is for logging in as an admin to setup the OAuth user. Adjust the host, port, database, and user values to fit your setup. If you have already setup OAuth in Vertica, you don't need to connect as an admin.
 The 'app settings' section is for the OAuth user.  To connect using OAuth, add your client ID, client secret (if needed), username, password, and token url that you configured with your IDP.
 
 The first time you connect, user environment variables 'OAUTH_SAMPLE_ACCESS_TOKEN' and 'OAUTH_SAMPLE_REFRESH_TOKEN' are set. You could also set the tokens values yourself if you don't want to acquire them through this application.

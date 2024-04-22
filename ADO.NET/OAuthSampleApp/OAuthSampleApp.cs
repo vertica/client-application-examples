@@ -247,7 +247,7 @@ internal class OAuthSampleApp
                 }
             }
             Console.WriteLine("HTTP Request Error: " + ex.Message);
-            throw new Exception("Error getting refresh and/or access tokens.", ex);
+            throw new HttpRequestException("Error getting refresh and/or access tokens.", ex);
         }
         catch (Exception ex)
         {
