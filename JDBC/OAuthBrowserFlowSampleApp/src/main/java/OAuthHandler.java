@@ -94,7 +94,7 @@ public class OAuthHandler {
     public void loginWithBrowserOAuth() throws SQLException, IOException {
         String jsonConfigFromFile = loadJsonConfig("OAuthJsonConfig.json");
         Properties jdbcOptions = new Properties();
-        jdbcOptions.put("oauthauthenticator", "browser");
+        jdbcOptions.put("authmethod", "browser");
         jdbcOptions.put("oauthjsonconfig", jsonConfigFromFile);
         
         Connection conn = DriverManager.getConnection(connectionString, jdbcOptions);
