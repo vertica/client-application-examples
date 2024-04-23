@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Net;
 using System.Runtime.InteropServices;
 using Vertica.Data.VerticaClient;
+using Vertica.Data.Util;
 
 internal class OAuthSampleApp
 {
@@ -155,7 +156,7 @@ internal class OAuthSampleApp
                     }
                 }
             }
-            catch (Exception ex)
+            catch (OAuthExpiredTokenException ex)
             {
                 Console.WriteLine(ex.Message);
                 if (connAttemptCount > 0) { break; }
@@ -171,8 +172,12 @@ internal class OAuthSampleApp
                 }
 
                 SetAccessToken();
-                connAttemptCount++;
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("An unexpected exception occured while retrieving tokens: " + e.Message);
+            }
+            connAttemptCount++;
         }
     }
 
@@ -235,25 +240,30 @@ internal class OAuthSampleApp
         }
         catch (HttpRequestException ex)
         {
-            if (response != null)
-            {
-                if (response.StatusCode == HttpStatusCode.Unauthorized)
-                {
-                    Console.WriteLine("Unauthorized: Check that your client ID and/or secret are correct.");
-                }
-                else if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    Console.WriteLine("Not Found: Check that your token URL is correct.");
-                }
-            }
-            Console.WriteLine("HTTP Request Error: " + ex.Message);
-            throw new HttpRequestException("Error getting refresh and/or access tokens.", ex);
+            HandleHttpRequestException(ex, response);
         }
         catch (Exception ex)
         {
             Console.WriteLine("Unexpected Error: " + ex.Message);
             throw new Exception("Error getting refresh and/or access tokens.", ex);
         }
+    }
+
+    static void HandleHttpRequestException(HttpRequestException ex, HttpResponseMessage response)
+    {
+        if (response != null)
+        {
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                Console.WriteLine("Unauthorized: Check that your client ID and/or secret are correct.");
+            }
+            else if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                Console.WriteLine("Not Found: Check that your token URL is correct.");
+            }
+        }
+        Console.WriteLine("HTTP Request Error: " + ex.Message);
+        throw new HttpRequestException("Error getting refresh and/or access tokens.", ex);
     }
 
     static string getSetting(String setting)
