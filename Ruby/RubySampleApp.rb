@@ -11,6 +11,7 @@ require 'java'
 # the program itself:
 require '/path/to/vertica-jdbc-x.x.x-x.jar'
 
+# import Java libraries
 java_import 'java.lang.System'
 java_import 'java.sql.DriverManager'
 java_import 'java.sql.SQLException'
@@ -34,7 +35,7 @@ begin
     System.out.println("Query result: ")
     while rs.next()
         System.out.println(rs.getString(1) + " | " + rs.getString(2) + " | " + 
-			   rs.getString(3) + " | " + rs.getString(4))
+                           rs.getString(3) + " | " + rs.getString(4))
     end
     conn.close()
 rescue SQLInvalidAuthorizationSpecException => e
