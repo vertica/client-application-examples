@@ -259,7 +259,7 @@ public class OAuthSampleApp implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         try {
-       		SetUpDbForOAuth();
+       		//SetUpDbForOAuth();
         	EnsureAccessToken();
         	ConnectToDatabase();
             
@@ -280,7 +280,7 @@ public class OAuthSampleApp implements Callable<Integer> {
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
-			TearDown();
+		//TearDown();
         }
         return 0;
     }
