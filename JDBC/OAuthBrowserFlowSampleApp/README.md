@@ -29,4 +29,4 @@ Whether you are using a secret or not, PKCE is implemented in the client for gre
 It's easiest to use VS Code or another IDE but you can run the program through the command line with:
 mvn clean install
 mvn dependency:copy-dependencies
-java -cp "target/jarname.jar;target/dependency/*" OAuthBrowserMain
+java -cp "target/jarname.jar;target/dependency/*" OAuthHandler
