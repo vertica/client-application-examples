@@ -12,11 +12,11 @@ This application simulates what you would want your application to do when conne
 
 # Prerequisites
 
-For information on installing .NET, starting a Vertica docker container, and how to reference a NuGet package, see the [README.md](https://github.com/vertica/client-application-examples/blob/main/ADO.NET/README.md) in the ADO.NET base directory.
-
 This sample application was built in .NET 6.0 and can be run in .NET Framework 4.6+ or .NET Core 3.1+.
 You'll need Vertica (at least 12.1) and the ADO.NET driver (at least 24.1).
 An IDP (like Keycloak or Okta) will need to be configured to handle OAuth.
+
+For information on installing .NET, starting a Vertica docker container, and how to reference a NuGet package, see the [README.md](https://github.com/vertica/client-application-examples/blob/main/ADO.NET/README.md) in the ADO.NET base directory.
 
 # Configuring the server to use OAuth
 
