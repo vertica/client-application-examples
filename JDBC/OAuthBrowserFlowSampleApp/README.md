@@ -20,7 +20,7 @@ You must first configure the Vertica server for OAuth as described in the [Verti
 The steps can also be done programatically as shown in the setupDbForOAuth() method.
 
 The application uses two configuration files. One is properties.example, which allows the database admin to login and setup another user for OAuth. It is optional.
-Required is the OAuthJsonConfig.json. It requires the "OAuthClientId" and "OAuthDiscoveryUrl". If your IDP utilizes secrets, then "OAuthClientSecret" is also needed. The setup method assumes that you are using OIDC 'confidential access type' and uses client secret for authentication. You can also setup 'public access type' to use a jwt to connect.
+Required is the OAuthJsonConfig.json. It requires the "OAuthClientId" and "OAuthDiscoveryUrl". If your OAuth client utilizes secrets, then "OAuthClientSecret" is also needed. The setup method assumes that you are using OIDC 'confidential access type' and uses client secret for authentication. You can also setup 'public access type' to use a jwt to connect.
 
 Whether you are using a secret or not, PKCE is implemented in the client for greater security. You can read about PKCE here [Vertica documentation](https://oauth.net/2/pkce/).
 

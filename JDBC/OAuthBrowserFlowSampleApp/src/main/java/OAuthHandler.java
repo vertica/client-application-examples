@@ -99,9 +99,11 @@ public class OAuthHandler {
         
         Connection conn = DriverManager.getConnection(connectionString, jdbcOptions);
         Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT CURRENT_USER;");
+        ResultSet rs = stmt.executeQuery("select user_name, authentication_method from sessions where session_id = current_session();");
         while (rs.next()) {
-            System.out.println("Successfully connected to Vertica. SELECT CURRENT_USER returned: " + rs.getString(1));
+            System.out.println("Successfully connected to Vertica.");
+            System.out.println("The current user is: " + rs.getString(1));
+            System.out.println("The authentication method used is: " + rs.getString(2));
         }
     }
 
