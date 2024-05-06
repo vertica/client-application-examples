@@ -20,7 +20,6 @@ import java.sql.SQLInvalidAuthorizationSpecException;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.concurrent.Callable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileInputStream;
@@ -35,7 +34,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.vertica.jdbc.VerticaConnection;
-public class OAuthSampleApp implements Callable<Integer> 
+public class OAuthSampleApp
 {
 	private static Properties prop;
 	private static String OAUTH_ACCESS_TOKEN_VAR_STRING = "OAUTH_SAMPLE_ACCESS_TOKEN";
@@ -75,32 +74,37 @@ public class OAuthSampleApp implements Callable<Integer>
 	{
 		String connectionString = getConnectionString(prop.getProperty("ConnectionString"));
 		vConnection = DriverManager.getConnection(connectionString);
-		System.out.println("SetUpDbForOAuth");
 		String CONNECTION_STRING = prop.getProperty("ConnectionString");    
 		String USER = prop.getProperty("User");
 		String CLIENT_ID = prop.getProperty("ClientId");
 		String CLIENT_SECRET = prop.getProperty("ClientSecret");
 		String INTROSPECT_URL = prop.getProperty("TokenUrl") + "introspect";
 		Statement st = vConnection.createStatement();
-		st.execute("DROP USER IF EXISTS " + USER + " CASCADE;");
-		st.execute("DROP AUTHENTICATION IF EXISTS v_oauth CASCADE;");
-		st.execute("CREATE AUTHENTICATION v_oauth METHOD 'oauth' LOCAL;");//HOST '0.0.0.0/0';");//getOAuthHost());
-		st.execute("ALTER AUTHENTICATION v_oauth SET client_id= '" + CLIENT_ID + "';");
-		st.execute("ALTER AUTHENTICATION v_oauth SET client_secret= '" + CLIENT_SECRET + "';");
-		st.execute("ALTER AUTHENTICATION v_oauth SET introspect_url = '" + INTROSPECT_URL + "';");
-		st.execute("CREATE USER " + USER + ";");
-		st.execute("GRANT AUTHENTICATION v_oauth TO " + USER + ";");
-		st.execute("GRANT ALL ON SCHEMA PUBLIC TO " + USER +";");
+		st.executeUpdate("DROP USER IF EXISTS " + USER + " CASCADE;");
+		st.executeUpdate("DROP AUTHENTICATION IF EXISTS v_oauth CASCADE;");
+		st.executeUpdate("CREATE AUTHENTICATION v_oauth METHOD 'oauth' HOST '0.0.0.0/0';");
+		st.executeUpdate("ALTER AUTHENTICATION v_oauth SET client_id= '" + CLIENT_ID + "';");
+		st.executeUpdate("ALTER AUTHENTICATION v_oauth SET client_secret= '" + CLIENT_SECRET + "';");
+		st.executeUpdate("ALTER AUTHENTICATION v_oauth SET introspect_url = '" + INTROSPECT_URL + "';");
+		st.executeUpdate("CREATE USER " + USER + ";");
+		st.executeUpdate("GRANT AUTHENTICATION v_oauth TO " + USER + ";");
+		st.executeUpdate("GRANT ALL ON SCHEMA PUBLIC TO " + USER +";");
 		st.close();
 	}
 	// Dispose the authentication record from database
-	private static void TearDown() throws Exception 
+	private static void TearDown() 
 	{
-		Statement st = vConnection.createStatement(); 
-		String USER = prop.getProperty("User");
-		st.execute("DROP USER IF EXISTS " + USER + " CASCADE");
-		st.execute("DROP AUTHENTICATION IF EXISTS v_oauth CASCADE");
-		vConnection.close();
+		try
+		{
+			Statement st = vConnection.createStatement(); 
+			String USER = prop.getProperty("User");
+			st.executeUpdate("DROP USER IF EXISTS " + USER + " CASCADE");
+			st.executeUpdate("DROP AUTHENTICATION IF EXISTS v_oauth CASCADE");
+			vConnection.close();
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	// Connect to Database using access Token
 	private static Connection connectToDB(String accessToken, String clientId, String clientSecret, String tokenUrl) throws SQLException 
@@ -116,19 +120,48 @@ public class OAuthSampleApp implements Callable<Integer>
 	// Test connection using access token and test database query result
 	private static void ConnectToDatabase() throws SQLException 
 	{
-		String accessToken = System.getProperty(OAUTH_ACCESS_TOKEN_VAR_STRING);
-		if( null == accessToken || accessToken.isEmpty())
-		{
-			System.out.println("Access Token is not available.");
-		}else
-		{
-			Connection conn = connectToDB(	accessToken,
-											prop.getProperty("ClientId"),
-											prop.getProperty("ClientSecret"),
-											prop.getProperty("TokenUrl"));
-			ResultSet rs = executeQuery(conn);
-			printResults(rs);
-		}
+		int connAttemptCount = 0;
+		while (connAttemptCount <= 1)
+        {
+            try
+            {
+            	String accessToken = System.getProperty(OAUTH_ACCESS_TOKEN_VAR_STRING);
+        		if( null == accessToken || accessToken.isEmpty())
+        		{
+					throw new Exception("Access Token is not available.");
+        		}else
+        		{
+        			Connection conn = connectToDB(	accessToken,
+        											prop.getProperty("ClientId"),
+        											prop.getProperty("ClientSecret"),
+        											prop.getProperty("TokenUrl"));
+        			ResultSet rs = executeQuery(conn);
+        			printResults(rs);
+					break;
+        		}
+            }catch(Exception ex) 
+            {
+            	if (connAttemptCount > 0) 
+            	{ 
+            		break;
+            	}
+            	try {
+					ex.printStackTrace();
+            		GetTokensByRefreshGrant();
+            	}catch (Exception e1)
+                {
+            		e1.printStackTrace();
+                    try
+					{
+						GetTokensByPasswordGrant();
+					}catch(Exception e2)
+					{
+						e2.printStackTrace();
+					}
+                }
+            	++connAttemptCount;
+            }
+        }
 	}
 	// execute Simple query on database connection
 	private static ResultSet executeQuery(Connection conn) throws SQLException 
@@ -156,7 +189,7 @@ public class OAuthSampleApp implements Callable<Integer>
 			result.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.name()));
 			result.append("&");
 		}
-		result = result.substring(0, str.length() - 1);
+		result.setLength(result.length()-1);
 		return result.toString();
 	}
     // password grant logs into the IDP using credentials in app.config
@@ -179,6 +212,20 @@ public class OAuthSampleApp implements Callable<Integer>
 		formData.put("refresh_token",	System.getProperty(OAUTH_REFRESH_TOKEN_VAR_STRING));
 		GetAndSetTokens(formData);
     }
+    // read result from Buffered input stream
+	private static ByteArrayOutputStream readResult(BufferedInputStream in, ByteArrayOutputStream buf) {
+		try
+		{
+			for (int result = in.read(); result != -1; result = in.read()) 
+			{
+				buf.write((byte) result);
+			}
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return buf;
+	}
     // get and set tokens from IDP 
 	private static void GetAndSetTokens(Map<String, String> formData) throws Exception
     {
@@ -198,43 +245,35 @@ public class OAuthSampleApp implements Callable<Integer>
 				connection.getOutputStream().write(postData);
 	           	BufferedInputStream in = new BufferedInputStream(connection.getInputStream());
 	    	    ByteArrayOutputStream buf = new ByteArrayOutputStream();
-	            for (int result = in.read(); result != -1; result = in.read()) {
-	               	buf.write((byte) result);
-		        }
+	            readResult(in, buf);
 	    	    String res = buf.toString("UTF-8");
 	        	JsonElement jElement = new JsonParser().parse(res);
 	            JsonObject jObject = jElement.getAsJsonObject();
 				// set Tokens as System Properties - new values to access_token and refresh_token
-	            if(null == jObject.get("access_token").getAsString().isEmpty() || jObject.get("access_token").getAsString().isEmpty())
+	            String accessToken = jObject.has("access_token") ? jObject.get("access_token").getAsString() : null;
+	            String refreshToken = jObject.has("refresh_token") ? jObject.get("refresh_token").getAsString() : null;           
+	            if (null == accessToken || null == refreshToken)
 	            {
-	            	throw new Exception("Access Token is empty, Please verify the config.properties for proper inputs");
-	            }else 
-	            {
-					System.setProperty(OAUTH_ACCESS_TOKEN_VAR_STRING, jObject.get("access_token").getAsString());
+	            	throw new Exception("Access/refresh token is null, Please verify the config.properties for proper inputs.");
 	            }
-	            if(null == jObject.get("refresh_token").getAsString().isEmpty() || jObject.get("refresh_token").getAsString().isEmpty())
-				{	
-					throw new Exception("Refresh Token is empty, Please verify the config.properties for proper inputs");
-	            }else
-				{
-					System.setProperty(OAUTH_REFRESH_TOKEN_VAR_STRING, jObject.get("refresh_token").getAsString());
-				}
-	        } catch (Exception e) {
+				System.setProperty(OAUTH_ACCESS_TOKEN_VAR_STRING, accessToken);
+				System.setProperty(OAUTH_REFRESH_TOKEN_VAR_STRING, refreshToken);
+	        }catch(UnsupportedEncodingException uee)
+			{
+				uee.printStackTrace();
+	        } catch (Exception e) 
+	        {
 	            String res = "";
 	            try 
 	            {
 	                BufferedInputStream in = new BufferedInputStream(connection.getErrorStream());
 	                ByteArrayOutputStream buf = new ByteArrayOutputStream();
-	                for (int result = in.read(); result != -1; result = in.read()) 
-	                {
-	                    buf.write((byte) result);
-	                }
+	                readResult(in, buf);
 	                res = buf.toString("UTF-8");
 	            } catch (Exception ex) 
 	            {
 	                //Improper setup. Passes in SF, fails in Devjail. Skip when this happens, but print the error.
 	                ex.printStackTrace();
-	                System.out.println("Error when fetching token endpoints. Skipping test.");
 	            }
 				throw e;
 	        } finally 
@@ -248,7 +287,7 @@ public class OAuthSampleApp implements Callable<Integer>
     }
 	// if no access token is set, obtains and sets first access and refresh tokens
 	// uses the password grant flow
-	private void EnsureAccessToken() throws Exception 
+	private static void EnsureAccessToken() throws Exception 
 	{
 		try 
 		{
@@ -256,48 +295,12 @@ public class OAuthSampleApp implements Callable<Integer>
 			if(null == accessToken || accessToken.isEmpty()) 
 			{
 				// Obtain first access token
-				System.out.println("Access token not found. Obtaining first access token from IDP.");
 				GetTokensByPasswordGrant();
 			}
 		}catch(Exception e)
 		{
 			throw e;
 		}
-	}
-	@Override
-	public Integer call() throws Exception 
-	{
-		try 
-		{
-			//SetUpDbForOAuth(); Commeted this line due to issues with "Add/Create Authentication record"
-			EnsureAccessToken();
-			ConnectToDatabase();       
-			try
-			{
-				GetTokensByRefreshGrant();
-				System.out.println("New Access token is set by refreshToken");
-			}catch(Exception e)
-			{
-				throw e;
-			}
-		}catch (SQLTransientConnectionException connException) 
-		{
-			System.out.print("Network connection issue: ");
-			System.out.print(connException.getMessage());
-			System.out.println(" Try again later!");
-		}catch (SQLInvalidAuthorizationSpecException authException) 
-		{
-			System.out.print("Could not log into database: ");
-			System.out.print(authException.getMessage());
-			System.out.println(" Check the login credentials and try again.");
-		}catch (SQLException e) 
-		{
-			e.printStackTrace();
-		}finally 
-		{
-			//TearDown(); Commeted this line due to issues with "Add/Create Authentication record"
-		}
-		return 0;
 	}
 	// load configuration properties
 	public static void loadProperties()
@@ -313,8 +316,28 @@ public class OAuthSampleApp implements Callable<Integer>
     // main function, Call starts from here
 	public static void main(String[] args) 
 	{    	
-		loadProperties();
-		int exitCode = new CommandLine(new OAuthSampleApp()).execute(args);
-		System.exit(exitCode);
+		try
+        {
+			loadProperties();
+            //SetUpDbForOAuth();// Commeted this line due to issues with "Add/Create Authentication record"
+            EnsureAccessToken();
+            ConnectToDatabase();
+        }catch (SQLTransientConnectionException connException)
+        {
+			connException.printStackTrace();
+        }catch (SQLInvalidAuthorizationSpecException authException)
+        {
+            authException.printStackTrace();
+        }catch (SQLException e)
+        {
+            e.printStackTrace();
+        }catch (Exception unreportedEx)
+		{
+			unreportedEx.printStackTrace();
+		}finally
+        {
+            //TearDown(); // Commeted this line due to issues with "Add/Create Authentication record"
+        }
+		System.exit(0);
 	}
 }
