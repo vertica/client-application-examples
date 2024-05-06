@@ -142,7 +142,6 @@ public class OAuthSampleApp
             	}
             	try {
 					ex.printStackTrace();
-            		System.out.println("Access token invalid or expired. Attempting token refresh.");
             		GetTokensByRefreshGrant();
             	}catch (Exception e1)
                 {
