@@ -14,4 +14,4 @@ Run the sample app using the following command:
 jruby RubySampleApp.rb
 ```
 
-For more instructions about JDBC, please refer to Vertica documentation.
+For more instructions about JDBC, please refer to [Vertica documentation](https://docs.vertica.com/latest/en/connecting-to/client-libraries/accessing/java/).
