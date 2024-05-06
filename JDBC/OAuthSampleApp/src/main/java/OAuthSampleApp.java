@@ -242,7 +242,7 @@ public class OAuthSampleApp
 	    	    ByteArrayOutputStream buf = new ByteArrayOutputStream();
 	            readResult(in, buf);
 	    	    String res = buf.toString("UTF-8");
-	        	JsonElement jElement = new JsonParser().parse(res);
+	        	JsonElement jElement = JsonParser.parseString(res);
 	            JsonObject jObject = jElement.getAsJsonObject();
 				// set Tokens as System Properties - new values to access_token and refresh_token
 	            String accessToken = jObject.has("access_token") ? jObject.get("access_token").getAsString() : null;
