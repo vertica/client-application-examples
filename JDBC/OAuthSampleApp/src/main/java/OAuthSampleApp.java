@@ -107,13 +107,10 @@ public class OAuthSampleApp
 		}
 	}
 	// Connect to Database using access Token
-	private static Connection connectToDB(String accessToken, String clientId, String clientSecret, String tokenUrl) throws SQLException 
+	private static Connection connectToDB(String accessToken) throws SQLException 
 	{
 		Properties jdbcOptions = new Properties();
 		jdbcOptions.put("oauthaccesstoken", accessToken);
-		jdbcOptions.put("oauthtokenurl", tokenUrl);
-		jdbcOptions.put("oauthclientid", clientId);
-		jdbcOptions.put("oauthclientsecret", clientSecret);
 		return DriverManager.getConnection(
 				"jdbc:vertica://" + getParam("Host") + ":" + getParam("Port") + "/" + getParam("Database") , jdbcOptions);
     }
@@ -131,10 +128,7 @@ public class OAuthSampleApp
 					throw new Exception("Access Token is not available.");
         		}else
         		{
-        			Connection conn = connectToDB(	accessToken,
-        											prop.getProperty("ClientId"),
-        											prop.getProperty("ClientSecret"),
-        											prop.getProperty("TokenUrl"));
+        			Connection conn = connectToDB(accessToken);
         			ResultSet rs = executeQuery(conn);
         			printResults(rs);
 					break;
@@ -147,6 +141,7 @@ public class OAuthSampleApp
             	}
             	try {
 					ex.printStackTrace();
+            		System.out.println("Access token invalid or expired. Attempting token refresh.");
             		GetTokensByRefreshGrant();
             	}catch (Exception e1)
                 {
@@ -319,7 +314,7 @@ public class OAuthSampleApp
 		try
         {
 			loadProperties();
-            //SetUpDbForOAuth();// Commeted this line due to issues with "Add/Create Authentication record"
+            //SetUpDbForOAuth();// Commeted this Call due to issues with "Add/Create Authentication record"
             EnsureAccessToken();
             ConnectToDatabase();
         }catch (SQLTransientConnectionException connException)
@@ -336,7 +331,7 @@ public class OAuthSampleApp
 			unreportedEx.printStackTrace();
 		}finally
         {
-            //TearDown(); // Commeted this line due to issues with "Add/Create Authentication record"
+            //TearDown(); // Commeted this Call due to issues with "Add/Create Authentication record"
         }
 		System.exit(0);
 	}
