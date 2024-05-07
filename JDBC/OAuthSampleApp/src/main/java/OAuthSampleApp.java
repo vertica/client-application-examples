@@ -79,17 +79,17 @@ public class OAuthSampleApp
 		String USER = prop.getProperty("User");
 		String CLIENT_ID = prop.getProperty("ClientId");
 		String CLIENT_SECRET = prop.getProperty("ClientSecret");
-		String INTROSPECT_URL = prop.getProperty("TokenUrl") + "introspect";
+		String DISCOVERY_URL = prop.getProperty("DiscoveryUrl");
 		Statement st = vConnection.createStatement();
-		st.executeUpdate("DROP USER IF EXISTS " + USER + " CASCADE;");
-		st.executeUpdate("DROP AUTHENTICATION IF EXISTS v_oauth CASCADE;");
-		st.executeUpdate("CREATE AUTHENTICATION v_oauth METHOD 'oauth' HOST '0.0.0.0/0';");
-		st.executeUpdate("ALTER AUTHENTICATION v_oauth SET client_id= '" + CLIENT_ID + "';");
-		st.executeUpdate("ALTER AUTHENTICATION v_oauth SET client_secret= '" + CLIENT_SECRET + "';");
-		st.executeUpdate("ALTER AUTHENTICATION v_oauth SET introspect_url = '" + INTROSPECT_URL + "';");
-		st.executeUpdate("CREATE USER " + USER + ";");
-		st.executeUpdate("GRANT AUTHENTICATION v_oauth TO " + USER + ";");
-		st.executeUpdate("GRANT ALL ON SCHEMA PUBLIC TO " + USER +";");
+		st.execute("DROP USER IF EXISTS " + USER + " CASCADE;");
+        st.execute("DROP AUTHENTICATION IF EXISTS v_oauth CASCADE;");
+        st.execute("CREATE AUTHENTICATION v_oauth METHOD 'oauth' LOCAL;");
+        st.execute("ALTER AUTHENTICATION v_oauth SET client_id= '" + CLIENT_ID + "';");
+        st.execute("ALTER AUTHENTICATION v_oauth SET client_secret= '" + CLIENT_SECRET + "';");
+        st.execute("ALTER AUTHENTICATION v_oauth SET discovery_url = '" + DISCOVERY_URL +"';");
+        st.execute("CREATE USER " + USER + ";");
+        st.execute("GRANT AUTHENTICATION v_oauth TO " + USER + ";");
+        st.execute("GRANT ALL ON SCHEMA PUBLIC TO " + USER +";");
 		st.close();
 	}
 	// Dispose the authentication record from database
@@ -314,7 +314,7 @@ public class OAuthSampleApp
 		try
         {
 			loadProperties();
-            //SetUpDbForOAuth();// Commeted this Call due to issues with "Add/Create Authentication record"
+            SetUpDbForOAuth();
             EnsureAccessToken();
             ConnectToDatabase();
         }catch (SQLTransientConnectionException connException)
@@ -331,7 +331,7 @@ public class OAuthSampleApp
 			unreportedEx.printStackTrace();
 		}finally
         {
-            //TearDown(); // Commeted this Call due to issues with "Add/Create Authentication record"
+            TearDown();
         }
 		System.exit(0);
 	}
