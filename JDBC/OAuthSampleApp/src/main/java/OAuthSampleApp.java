@@ -221,65 +221,65 @@ public class OAuthSampleApp
 		}
 		return buf;
 	}
-    // get and set tokens from IDP 
+	// get and set tokens from IDP 
 	private static void GetAndSetTokens(Map<String, String> formData) throws Exception
-    {
-    	try {
-	    	String postOpts = getEncodedParamsString(formData);
-	        byte[] postData = postOpts.getBytes("UTF-8");
-	        int postDataLength = postData.length;
-	        URL url = new URL(prop.getProperty("TokenUrl"));
-	        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+	{
+		try {
+			String postOpts = getEncodedParamsString(formData);
+			byte[] postData = postOpts.getBytes("UTF-8");
+			int postDataLength = postData.length;
+			URL url = new URL(prop.getProperty("TokenUrl"));
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 	        try {
-	            connection.setDoOutput(true);
-	            connection.setUseCaches(false);
-	            connection.setRequestMethod("POST");
-	            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-	            connection.setRequestProperty("Content-Length", Integer.toString(postDataLength));
-	            connection.setRequestProperty("Accept", "application/json");
+				connection.setDoOutput(true);
+				connection.setUseCaches(false);
+				connection.setRequestMethod("POST");
+				connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+				connection.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+				connection.setRequestProperty("Accept", "application/json");
 				connection.getOutputStream().write(postData);
-	           	BufferedInputStream in = new BufferedInputStream(connection.getInputStream());
-	    	    ByteArrayOutputStream buf = new ByteArrayOutputStream();
-	            readResult(in, buf);
-	    	    String res = buf.toString("UTF-8");
-	        	JsonElement jElement = JsonParser.parseString(res);
-	            JsonObject jObject = jElement.getAsJsonObject();
+				BufferedInputStream in = new BufferedInputStream(connection.getInputStream());
+				ByteArrayOutputStream buf = new ByteArrayOutputStream();
+				readResult(in, buf);
+				String res = buf.toString("UTF-8");
+				JsonElement jElement = JsonParser.parseString(res);
+				JsonObject jObject = jElement.getAsJsonObject();
 				// set Tokens as System Properties - new values to access_token and refresh_token
-	            String accessToken = jObject.has("access_token") ? jObject.get("access_token").getAsString() : null;
-	            String refreshToken = jObject.has("refresh_token") ? jObject.get("refresh_token").getAsString() : null;           
-	            if (null == accessToken || null == refreshToken)
-	            {
-	            	throw new Exception("Access/refresh token is null, Please verify the config.properties for proper inputs.");
-	            }
+				String accessToken = jObject.has("access_token") ? jObject.get("access_token").getAsString() : null;
+				String refreshToken = jObject.has("refresh_token") ? jObject.get("refresh_token").getAsString() : null;           
+				if (null == accessToken || null == refreshToken)
+				{
+					throw new Exception("Access/refresh token is null, Please verify the config.properties for proper inputs.");
+				}
 				System.setProperty(OAUTH_ACCESS_TOKEN_VAR_STRING, accessToken);
 				System.setProperty(OAUTH_REFRESH_TOKEN_VAR_STRING, refreshToken);
 	        }catch(UnsupportedEncodingException uee)
 			{
-				uee.printStackTrace();
+	        	uee.printStackTrace();
 	        } catch (Exception e) 
 	        {
-	            String res = "";
-	            try 
-	            {
-	                BufferedInputStream in = new BufferedInputStream(connection.getErrorStream());
-	                ByteArrayOutputStream buf = new ByteArrayOutputStream();
-	                readResult(in, buf);
-	                res = buf.toString("UTF-8");
-	            } catch (Exception ex) 
-	            {
-	                //Improper setup. Passes in SF, fails in Devjail. Skip when this happens, but print the error.
-	                ex.printStackTrace();
-	            }
+				String res = "";
+				try 
+				{
+					BufferedInputStream in = new BufferedInputStream(connection.getErrorStream());
+					ByteArrayOutputStream buf = new ByteArrayOutputStream();
+					readResult(in, buf);
+					res = buf.toString("UTF-8");
+				} catch (Exception ex) 
+				{
+					//Improper setup. Passes in SF, fails in Devjail. Skip when this happens, but print the error.
+					ex.printStackTrace();
+				}
 				throw e;
 	        } finally 
 	        {
-	            connection.disconnect();
+	        	connection.disconnect();
 	        }
-    	}catch (IOException unreportedex) 
-    	{
-    		unreportedex.printStackTrace();
-        }
-    }
+		}catch (IOException unreportedex) 
+		{
+			unreportedex.printStackTrace();
+		}
+	}
 	// if no access token is set, obtains and sets first access and refresh tokens
 	// uses the password grant flow
 	private static void EnsureAccessToken() throws Exception 
@@ -312,37 +312,37 @@ public class OAuthSampleApp
 	{
 		prop = new Properties();
 		try (InputStream input = new FileInputStream("src/main/java/config.properties")) {
-			// load a properties file
+		// load a properties file
 			prop.load(input);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
-    // main function, Call starts from here
+	// main function, Call starts from here
 	public static void main(String[] args) 
-	{    	
+	{
 		try
-        {
+		{
 			loadProperties();
-            SetUpDbForOAuth();
-            EnsureAccessToken();
-            ConnectToDatabase();
-        }catch (SQLTransientConnectionException connException)
-        {
+			SetUpDbForOAuth();
+			EnsureAccessToken();
+			ConnectToDatabase();
+		}catch (SQLTransientConnectionException connException)
+		{
 			connException.printStackTrace();
-        }catch (SQLInvalidAuthorizationSpecException authException)
-        {
-            authException.printStackTrace();
-        }catch (SQLException e)
-        {
-            e.printStackTrace();
-        }catch (Exception unreportedEx)
+		}catch (SQLInvalidAuthorizationSpecException authException)
+		{
+			authException.printStackTrace();
+		}catch (SQLException e)
+		{
+			e.printStackTrace();
+		}catch (Exception unreportedEx)
 		{
 			unreportedEx.printStackTrace();
 		}finally
-        {
-            TearDown();
-        }
+		{
+			TearDown();
+		}
 		System.exit(0);
 	}
 }
