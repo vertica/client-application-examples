@@ -75,21 +75,21 @@ public class OAuthSampleApp
 	{
 		String connectionString = getConnectionString(prop.getProperty("ConnectionString"));
 		vConnection = DriverManager.getConnection(connectionString);
-		String CONNECTION_STRING = prop.getProperty("ConnectionString");    
+		String CONNECTION_STRING = prop.getProperty("ConnectionString");
 		String USER = prop.getProperty("User");
 		String CLIENT_ID = prop.getProperty("ClientId");
 		String CLIENT_SECRET = prop.getProperty("ClientSecret");
 		String DISCOVERY_URL = prop.getProperty("DiscoveryUrl");
 		Statement st = vConnection.createStatement();
 		st.execute("DROP USER IF EXISTS " + USER + " CASCADE;");
-        st.execute("DROP AUTHENTICATION IF EXISTS v_oauth CASCADE;");
-        st.execute("CREATE AUTHENTICATION v_oauth METHOD 'oauth' LOCAL;");
-        st.execute("ALTER AUTHENTICATION v_oauth SET client_id= '" + CLIENT_ID + "';");
-        st.execute("ALTER AUTHENTICATION v_oauth SET client_secret= '" + CLIENT_SECRET + "';");
-        st.execute("ALTER AUTHENTICATION v_oauth SET discovery_url = '" + DISCOVERY_URL +"';");
-        st.execute("CREATE USER " + USER + ";");
-        st.execute("GRANT AUTHENTICATION v_oauth TO " + USER + ";");
-        st.execute("GRANT ALL ON SCHEMA PUBLIC TO " + USER +";");
+		st.execute("DROP AUTHENTICATION IF EXISTS v_oauth CASCADE;");
+		st.execute("CREATE AUTHENTICATION v_oauth METHOD 'oauth' LOCAL;");
+		st.execute("ALTER AUTHENTICATION v_oauth SET client_id= '" + CLIENT_ID + "';");
+		st.execute("ALTER AUTHENTICATION v_oauth SET client_secret= '" + CLIENT_SECRET + "';");
+		st.execute("ALTER AUTHENTICATION v_oauth SET discovery_url = '" + DISCOVERY_URL +"';");
+		st.execute("CREATE USER " + USER + ";");
+		st.execute("GRANT AUTHENTICATION v_oauth TO " + USER + ";");
+		st.execute("GRANT ALL ON SCHEMA PUBLIC TO " + USER +";");
 		st.close();
 	}
 	// Dispose the authentication record from database
@@ -114,49 +114,49 @@ public class OAuthSampleApp
 		jdbcOptions.put("oauthaccesstoken", accessToken);
 		return DriverManager.getConnection(
 				"jdbc:vertica://" + getParam("Host") + ":" + getParam("Port") + "/" + getParam("Database") , jdbcOptions);
-    }
+	}
 	// Test connection using access token and test database query result
 	private static void ConnectToDatabase() throws SQLException 
 	{
 		int connAttemptCount = 0;
 		while (connAttemptCount <= 1)
-        {
-            try
-            {
-            	String accessToken = System.getProperty(OAUTH_ACCESS_TOKEN_VAR_STRING);
-        		if( null == accessToken || accessToken.isEmpty())
-        		{
+		{
+			try
+			{
+				String accessToken = System.getProperty(OAUTH_ACCESS_TOKEN_VAR_STRING);
+				if( null == accessToken || accessToken.isEmpty())
+				{
 					throw new Exception("Access Token is not available.");
-        		}else
-        		{
-        			Connection conn = connectToDB(accessToken);
-        			ResultSet rs = executeQuery(conn);
-        			printResults(rs);
+				}else
+				{
+					Connection conn = connectToDB(accessToken);
+					ResultSet rs = executeQuery(conn);
+					printResults(rs);
 					break;
-        		}
-            }catch(Exception ex) 
-            {
-            	if (connAttemptCount > 0) 
-            	{ 
-            		break;
-            	}
-            	try {
+				}
+			}catch(Exception ex) 
+			{
+				if (connAttemptCount > 0) 
+				{ 
+					break;
+				}
+				try {
 					ex.printStackTrace();
-            		GetTokensByRefreshGrant();
-            	}catch (Exception e1)
-                {
-            		e1.printStackTrace();
-                    try
+					GetTokensByRefreshGrant();
+				}catch (Exception e1)
+				{
+					e1.printStackTrace();
+					try
 					{
 						GetTokensByPasswordGrant();
 					}catch(Exception e2)
 					{
 						e2.printStackTrace();
 					}
-                }
-            	++connAttemptCount;
-            }
-        }
+				}
+				++connAttemptCount;
+			}
+		}
 	}
 	// execute Simple query on database connection
 	private static ResultSet executeQuery(Connection conn) throws SQLException 
@@ -187,27 +187,27 @@ public class OAuthSampleApp
 		result.setLength(result.length()-1);
 		return result.toString();
 	}
-    // password grant logs into the IDP using credentials in app.config
-    public static void GetTokensByPasswordGrant()  throws Exception 
-    {
-    	Map<String, String> formData = new HashMap<String, String>();
+	// password grant logs into the IDP using credentials in app.config
+	public static void GetTokensByPasswordGrant() throws Exception 
+	{
+		Map<String, String> formData = new HashMap<String, String>();
 		formData.put("grant_type",   "password");
 		formData.put("client_id",     prop.getProperty("ClientId"));
 		formData.put("client_secret", prop.getProperty("ClientSecret"));
 		formData.put("username",      prop.getProperty("User"));
 		formData.put("password",      prop.getProperty("Password"));
-        GetAndSetTokens(formData);
-    }
+		GetAndSetTokens(formData);
+	}
     // refresh grant uses the refresh token to get a new access and refresh token
-    public static void GetTokensByRefreshGrant() throws Exception {
-    	Map<String, String> formData = new HashMap<String, String>();
-   		formData.put("grant_type",		"refresh_token");
+	public static void GetTokensByRefreshGrant() throws Exception {
+		Map<String, String> formData = new HashMap<String, String>();
+		formData.put("grant_type",		"refresh_token");
 		formData.put("client_id",		prop.getProperty("ClientId"));
 		formData.put("client_secret",	prop.getProperty("ClientSecret"));
 		formData.put("refresh_token",	System.getProperty(OAUTH_REFRESH_TOKEN_VAR_STRING));
 		GetAndSetTokens(formData);
-    }
-    // read result from Buffered input stream
+	}
+	// read result from Buffered input stream
 	private static ByteArrayOutputStream readResult(BufferedInputStream in, ByteArrayOutputStream buf) {
 		try
 		{
