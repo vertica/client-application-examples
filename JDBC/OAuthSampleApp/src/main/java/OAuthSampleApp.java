@@ -198,7 +198,7 @@ public class OAuthSampleApp
 		formData.put("password",      prop.getProperty("Password"));
 		GetAndSetTokens(formData);
 	}
-    // refresh grant uses the refresh token to get a new access and refresh token
+	// refresh grant uses the refresh token to get a new access and refresh token
 	public static void GetTokensByRefreshGrant() throws Exception {
 		Map<String, String> formData = new HashMap<String, String>();
 		formData.put("grant_type",		"refresh_token");
@@ -254,7 +254,7 @@ public class OAuthSampleApp
 				System.setProperty(OAUTH_ACCESS_TOKEN_VAR_STRING, accessToken);
 				System.setProperty(OAUTH_REFRESH_TOKEN_VAR_STRING, refreshToken);
 	        }catch(UnsupportedEncodingException uee)
-			{
+		{
 	        	uee.printStackTrace();
 	        } catch (Exception e) 
 	        {
