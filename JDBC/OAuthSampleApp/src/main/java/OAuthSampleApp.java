@@ -287,15 +287,20 @@ public class OAuthSampleApp
 		try 
 		{
 			String accessToken = System.getenv(OAUTH_ACCESS_TOKEN_VAR_STRING);
-			String refreshToken = System.getenv(OAUTH_REFRESH_TOKEN_VAR_STRING);
-			if(null == accessToken || null == refreshToken || accessToken.isEmpty() || refreshToken.isEmpty()) 
+			if(null == accessToken || accessToken.isEmpty()) 
 			{
-				// Obtain first access token
+				// Obtain first access token and refresh Tokens
 				GetTokensByPasswordGrant();
 			}else
 			{
-				System.setProperty(OAUTH_ACCESS_TOKEN_VAR_STRING, accessToken);
-				System.setProperty(OAUTH_REFRESH_TOKEN_VAR_STRING, refreshToken);
+				String refreshToken = System.getenv(OAUTH_REFRESH_TOKEN_VAR_STRING);
+				if( null == refreshToken || refreshToken.isEmpty())
+				{
+					GetTokensByPasswordGrant();
+				}else{
+					System.setProperty(OAUTH_ACCESS_TOKEN_VAR_STRING, accessToken);
+					System.setProperty(OAUTH_REFRESH_TOKEN_VAR_STRING, refreshToken);
+				}
 			}
 		}catch(Exception e)
 		{
