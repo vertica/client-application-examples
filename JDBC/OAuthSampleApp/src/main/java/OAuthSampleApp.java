@@ -1,3 +1,4 @@
+
 // (c) Copyright [2022-2023] Open Text.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // You may not use this file except in compliance with the License.
@@ -35,45 +36,35 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.vertica.jdbc.VerticaConnection;
 
-public class OAuthSampleApp
-{
+public class OAuthSampleApp {
 	private static Properties prop;
+	private static Map<String, String> csProp = new HashMap<String, String>();
 	private static String OAUTH_ACCESS_TOKEN_VAR_STRING = "OAUTH_SAMPLE_ACCESS_TOKEN";
 	private static String OAUTH_REFRESH_TOKEN_VAR_STRING = "OAUTH_SAMPLE_REFRESH_TOKEN";
 	private static Connection vConnection;
 	// Get jdbc connection string from provided configuration
-	private static String getConnectionString(String args) 
-	{
-		Map<String, String> kv=new HashMap<String, String>();
+	private static void getcsProp(String args) {
 		String[] entries = args.split(";");
-		for (String entry : entries) 
-		{
+		for (String entry : entries) {
 			String[] pair = entry.split("=");
-			kv.put(pair[0], pair[1]);
+			csProp.put(pair[0], pair[1]);
 		}
-		return "jdbc:vertica://" + kv.get("Host") + ":" 
-								 + kv.get("Port") + "/" 
-								 + kv.get("Database") + "?user=" 
-								 + kv.get("User") + "&password=" 
-								 + kv.get("Password");
+	}
+	private static String getConnectionString() {
+		return "jdbc:vertica://" + csProp.get("Host") + ":" 
+								+ csProp.get("Port") + "/" 
+								+ csProp.get("Database") + "?user=" 
+								+ csProp.get("User") + "&password=" 
+								+ csProp.get("Password");
 	}
 	// Get the parameters from the connection String
-	private static String getParam(String paramName) 
-	{
-		String args = prop.getProperty("ConnectionString");
-		Map<String, String> kv=new HashMap<String, String>();
-		String[] entries = args.split(";");
-		for (String entry : entries) 
-		{
-			String[] pair = entry.split("=");
-			kv.put(pair[0], pair[1]);
-		}
-		return kv.get(paramName);
+	private static String getParam(String paramName) {
+		return csProp.get(paramName);
 	}
-	// Add/Create Authentication record in database. Create use and grant the permissions for User
-	private static void SetUpDbForOAuth() throws Exception 
-	{
-		String connectionString = getConnectionString(prop.getProperty("ConnectionString"));
+	// Add/Create Authentication record in database. Create User and grant the
+	// permissions for User
+	private static void SetUpDbForOAuth() throws Exception {
+		String connectionString = getConnectionString();
 		vConnection = DriverManager.getConnection(connectionString);
 		String CONNECTION_STRING = prop.getProperty("ConnectionString");
 		String USER = prop.getProperty("User");
@@ -86,71 +77,58 @@ public class OAuthSampleApp
 		st.execute("CREATE AUTHENTICATION v_oauth METHOD 'oauth' LOCAL;");
 		st.execute("ALTER AUTHENTICATION v_oauth SET client_id= '" + CLIENT_ID + "';");
 		st.execute("ALTER AUTHENTICATION v_oauth SET client_secret= '" + CLIENT_SECRET + "';");
-		st.execute("ALTER AUTHENTICATION v_oauth SET discovery_url = '" + DISCOVERY_URL +"';");
+		st.execute("ALTER AUTHENTICATION v_oauth SET discovery_url = '" + DISCOVERY_URL + "';");
 		st.execute("CREATE USER " + USER + ";");
 		st.execute("GRANT AUTHENTICATION v_oauth TO " + USER + ";");
-		st.execute("GRANT ALL ON SCHEMA PUBLIC TO " + USER +";");
+		st.execute("GRANT ALL ON SCHEMA PUBLIC TO " + USER + ";");
 		st.close();
 	}
 	// Dispose the authentication record from database
-	private static void TearDown() 
-	{
-		try
-		{
-			Statement st = vConnection.createStatement(); 
+	private static void TearDown() {
+		try {
+			Statement st = vConnection.createStatement();
 			String USER = prop.getProperty("User");
 			st.executeUpdate("DROP USER IF EXISTS " + USER + " CASCADE");
 			st.executeUpdate("DROP AUTHENTICATION IF EXISTS v_oauth CASCADE");
 			vConnection.close();
-		}catch(Exception e)
-		{
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	// Connect to Database using access Token
-	private static Connection connectToDB(String accessToken) throws SQLException 
-	{
+	private static Connection connectToDB(String accessToken) throws SQLException {
 		Properties jdbcOptions = new Properties();
 		jdbcOptions.put("oauthaccesstoken", accessToken);
 		return DriverManager.getConnection(
-				"jdbc:vertica://" + getParam("Host") + ":" + getParam("Port") + "/" + getParam("Database") , jdbcOptions);
+				"jdbc:vertica://" + getParam("Host") + ":" + getParam("Port") + "/" + getParam("Database"),
+				jdbcOptions);
 	}
 	// Test connection using access token and test database query result
-	private static void ConnectToDatabase() throws SQLException 
-	{
+	private static void ConnectToDatabase() throws SQLException {
 		int connAttemptCount = 0;
-		while (connAttemptCount <= 1)
-		{
-			try
-			{
+		while (connAttemptCount <= 1) {
+			try {
 				String accessToken = System.getProperty(OAUTH_ACCESS_TOKEN_VAR_STRING);
-				if( null == accessToken || accessToken.isEmpty())
-				{
+				if (null == accessToken || accessToken.isEmpty()) {
 					throw new Exception("Access Token is not available.");
-				}else
-				{
+				} else {
 					Connection conn = connectToDB(accessToken);
 					ResultSet rs = executeQuery(conn);
 					printResults(rs);
 					break;
 				}
-			}catch(Exception ex) 
-			{
-				if (connAttemptCount > 0) 
-				{ 
+			} catch (Exception ex) {
+				if (connAttemptCount > 0) {
 					break;
 				}
 				try {
 					ex.printStackTrace();
 					GetTokensByRefreshGrant();
-				}catch (Exception e1)
-				{
+				} catch (Exception e1) {
 					e1.printStackTrace();
-					try
-					{
+					try {
 						GetTokensByPasswordGrant();
-					}catch(Exception e2)
-					{
+					} catch (Exception e2) {
 						e2.printStackTrace();
 					}
 				}
@@ -159,78 +137,68 @@ public class OAuthSampleApp
 		}
 	}
 	// execute Simple query on database connection
-	private static ResultSet executeQuery(Connection conn) throws SQLException 
-	{
+	private static ResultSet executeQuery(Connection conn) throws SQLException {
 		Statement stmt = conn.createStatement();
 		return stmt.executeQuery("SELECT user_id, user_name FROM USERS ORDER BY user_id");
 	}
-	private static void printResults(ResultSet rs) throws SQLException 
-	{
+	private static void printResults(ResultSet rs) throws SQLException {
 		int rowIdx = 1;
-		while (rs.next()) 
-		{
+		while (rs.next()) {
 			System.out.println(rowIdx + ". " + rs.getString(1).trim() + " " + rs.getString(2).trim());
 			rowIdx++;
 		}
 	}
 	// Get encoded URL from parameters
-	private static String getEncodedParamsString(Map<String, String> params) throws UnsupportedEncodingException 
-	{
+	private static String getEncodedParamsString(Map<String, String> params) throws UnsupportedEncodingException {
 		StringBuilder result = new StringBuilder();
-		for (Map.Entry<String, String> entry : params.entrySet()) 
-		{
+		for (Map.Entry<String, String> entry : params.entrySet()) {
 			result.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.name()));
 			result.append("=");
 			result.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.name()));
 			result.append("&");
 		}
-		result.setLength(result.length()-1);
+		result.setLength(result.length() - 1);
 		return result.toString();
 	}
 	// password grant logs into the IDP using credentials in app.config
-	public static void GetTokensByPasswordGrant() throws Exception 
-	{
+	public static void GetTokensByPasswordGrant() throws Exception {
 		Map<String, String> formData = new HashMap<String, String>();
-		formData.put("grant_type",   "password");
-		formData.put("client_id",     prop.getProperty("ClientId"));
+		formData.put("grant_type", "password");
+		formData.put("client_id", prop.getProperty("ClientId"));
 		formData.put("client_secret", prop.getProperty("ClientSecret"));
-		formData.put("username",      prop.getProperty("User"));
-		formData.put("password",      prop.getProperty("Password"));
+		formData.put("username", prop.getProperty("User"));
+		formData.put("password", prop.getProperty("Password"));
 		GetAndSetTokens(formData);
 	}
-	// refresh grant uses the refresh token to get a new access and refresh token
+	// refresh grant uses the refresh token to get the new access and refresh token
 	public static void GetTokensByRefreshGrant() throws Exception {
 		Map<String, String> formData = new HashMap<String, String>();
-		formData.put("grant_type",		"refresh_token");
-		formData.put("client_id",		prop.getProperty("ClientId"));
-		formData.put("client_secret",	prop.getProperty("ClientSecret"));
-		formData.put("refresh_token",	System.getProperty(OAUTH_REFRESH_TOKEN_VAR_STRING));
+		formData.put("grant_type", "refresh_token");
+		formData.put("client_id", prop.getProperty("ClientId"));
+		formData.put("client_secret", prop.getProperty("ClientSecret"));
+		formData.put("refresh_token", System.getProperty(OAUTH_REFRESH_TOKEN_VAR_STRING));
 		GetAndSetTokens(formData);
 	}
 	// read result from Buffered input stream
 	private static ByteArrayOutputStream readResult(BufferedInputStream in, ByteArrayOutputStream buf) {
-		try
-		{
-			for (int result = in.read(); result != -1; result = in.read()) 
-			{
+		try {
+			for (int result = in.read(); result != -1; result = in.read()) {
 				buf.write((byte) result);
 			}
-		}catch(Exception e)
-		{
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return buf;
 	}
-	// get and set tokens from IDP 
-	private static void GetAndSetTokens(Map<String, String> formData) throws Exception
-	{
+	// get and set tokens from IDP
+	private static void GetAndSetTokens(Map<String, String> formData) throws Exception {
 		try {
 			String postOpts = getEncodedParamsString(formData);
 			byte[] postData = postOpts.getBytes("UTF-8");
 			int postDataLength = postData.length;
 			URL url = new URL(prop.getProperty("TokenUrl"));
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-	        try {
+			try {
 				connection.setDoOutput(true);
 				connection.setUseCaches(false);
 				connection.setRequestMethod("POST");
@@ -246,101 +214,85 @@ public class OAuthSampleApp
 				JsonObject jObject = jElement.getAsJsonObject();
 				// set Tokens as System Properties - new values to access_token and refresh_token
 				String accessToken = jObject.has("access_token") ? jObject.get("access_token").getAsString() : null;
-				String refreshToken = jObject.has("refresh_token") ? jObject.get("refresh_token").getAsString() : null;           
-				if (null == accessToken || null == refreshToken)
-				{
-					throw new Exception("Access/refresh token is null, Please verify the config.properties for proper inputs.");
+				String refreshToken = jObject.has("refresh_token") ? jObject.get("refresh_token").getAsString() : null;
+				if (null == accessToken || null == refreshToken) {
+					throw new Exception(
+							"Access/refresh token is null, Please verify the config.properties for proper inputs.");
 				}
 				System.setProperty(OAUTH_ACCESS_TOKEN_VAR_STRING, accessToken);
 				System.setProperty(OAUTH_REFRESH_TOKEN_VAR_STRING, refreshToken);
-	        }catch(UnsupportedEncodingException uee)
-		{
-	        	uee.printStackTrace();
-	        } catch (Exception e) 
-	        {
+			} catch (UnsupportedEncodingException uee) {
+				uee.printStackTrace();
+			} catch (Exception e) {
 				String res = "";
-				try 
-				{
+				try {
 					BufferedInputStream in = new BufferedInputStream(connection.getErrorStream());
 					ByteArrayOutputStream buf = new ByteArrayOutputStream();
 					readResult(in, buf);
 					res = buf.toString("UTF-8");
-				} catch (Exception ex) 
-				{
-					//Improper setup. Passes in SF, fails in Devjail. Skip when this happens, but print the error.
+				} catch (Exception ex) {
+					// Skip when this happens, but print the error.
 					ex.printStackTrace();
 				}
 				throw e;
-	        } finally 
-	        {
-	        	connection.disconnect();
-	        }
-		}catch (IOException unreportedex) 
-		{
+			} finally {
+				connection.disconnect();
+			}
+		} catch (IOException unreportedex) {
 			unreportedex.printStackTrace();
 		}
 	}
-	// if no access token is set, obtains and sets first access and refresh tokens
-	// uses the password grant flow
-	private static void EnsureAccessToken() throws Exception 
-	{
-		try 
-		{
+	// It will get tokens from IDP using password grant if either of Access or
+	// Refresh tokens are not available
+	// If We have access token but there is no refresh token available, then 
+	// Still we will get the new tokens from IDP
+	private static void EnsureAccessToken() throws Exception {
+		try {
 			String accessToken = System.getenv(OAUTH_ACCESS_TOKEN_VAR_STRING);
-			if(null == accessToken || accessToken.isEmpty()) 
-			{
+			if (null == accessToken || accessToken.isEmpty()) {
 				// Obtain first access token and refresh Tokens
 				GetTokensByPasswordGrant();
-			}else
-			{
+			} else {
 				String refreshToken = System.getenv(OAUTH_REFRESH_TOKEN_VAR_STRING);
-				if( null == refreshToken || refreshToken.isEmpty())
-				{
+				if (null == refreshToken || refreshToken.isEmpty()) {
 					GetTokensByPasswordGrant();
-				}else{
+				} else {
 					System.setProperty(OAUTH_ACCESS_TOKEN_VAR_STRING, accessToken);
 					System.setProperty(OAUTH_REFRESH_TOKEN_VAR_STRING, refreshToken);
 				}
 			}
-		}catch(Exception e)
-		{
+		} catch (Exception e) {
 			throw e;
 		}
 	}
-	// load configuration properties
-	public static void loadProperties()
-	{
+	// load the configuration properties
+	public static void loadProperties() {
 		prop = new Properties();
 		try (InputStream input = new FileInputStream("src/main/java/config.properties")) {
-		// load a properties file
+			// load the properties file
 			prop.load(input);
+			// Get the connectionString parameters from properties prop
+			getcsProp(prop.getProperty("ConnectionString"));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
 	// main function, Call starts from here
-	public static void main(String[] args) 
-	{
-		try
-		{
+	public static void main(String[] args) {
+		try {
 			loadProperties();
 			SetUpDbForOAuth();
 			EnsureAccessToken();
 			ConnectToDatabase();
-		}catch (SQLTransientConnectionException connException)
-		{
+		} catch (SQLTransientConnectionException connException) {
 			connException.printStackTrace();
-		}catch (SQLInvalidAuthorizationSpecException authException)
-		{
+		} catch (SQLInvalidAuthorizationSpecException authException) {
 			authException.printStackTrace();
-		}catch (SQLException e)
-		{
+		} catch (SQLException e) {
 			e.printStackTrace();
-		}catch (Exception unreportedEx)
-		{
+		} catch (Exception unreportedEx) {
 			unreportedEx.printStackTrace();
-		}finally
-		{
+		} finally {
 			TearDown();
 		}
 		System.exit(0);
