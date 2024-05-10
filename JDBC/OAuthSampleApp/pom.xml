@@ -20,7 +20,7 @@
         <dependency>
             <groupId>com.vertica.jdbc</groupId>
             <artifactId>vertica-jdbc</artifactId>
-            <version>23.4.0-0</version> 
+            <version>24.2.0-0</version> 
         </dependency>
     </dependencies>
 

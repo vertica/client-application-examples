@@ -5,7 +5,7 @@
 
 This application has been tested on MacOS, Linux, and Windows.
 
-The server must be configured for OAuth as described in the [Vertica documentation](https://docs.vertica.com/23.4.x/en/security-and-authentication/client-authentication/oauth-2-0-authentication/configuring-oauth-authentication/).
+The server must be configured for OAuth as described in the [Vertica documentation](https://docs.vertica.com/24.2.x/en/security-and-authentication/client-authentication/oauth-2-0-authentication/configuring-oauth-authentication/).
 
 # Running the JDBC sample app
 
