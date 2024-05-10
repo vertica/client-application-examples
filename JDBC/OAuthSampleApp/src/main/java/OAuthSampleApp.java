@@ -1,4 +1,3 @@
-
 // (c) Copyright [2022-2023] Open Text.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // You may not use this file except in compliance with the License.
@@ -42,6 +41,7 @@ public class OAuthSampleApp {
 	private static String OAUTH_ACCESS_TOKEN_VAR_STRING = "OAUTH_SAMPLE_ACCESS_TOKEN";
 	private static String OAUTH_REFRESH_TOKEN_VAR_STRING = "OAUTH_SAMPLE_REFRESH_TOKEN";
 	private static Connection vConnection;
+
 	// Get jdbc connection string from provided configuration
 	private static void getcsProp(String args) {
 		String[] entries = args.split(";");
@@ -50,14 +50,17 @@ public class OAuthSampleApp {
 			csProp.put(pair[0], pair[1]);
 		}
 	}
+
 	private static String getConnectionString() {
 		return "jdbc:vertica://" + csProp.get("Host") + ":" + csProp.get("Port") + "/" + csProp.get("Database")
 				+ "?user=" + csProp.get("User") + "&password=" + csProp.get("Password");
 	}
+
 	// Get the parameters from the connection String
 	private static String getParam(String paramName) {
 		return csProp.get(paramName);
 	}
+
 	// Add/Create Authentication record in database. Create User and grant the
 	// permissions for User
 	private static void SetUpDbForOAuth() throws Exception {
@@ -80,6 +83,7 @@ public class OAuthSampleApp {
 		st.execute("GRANT ALL ON SCHEMA PUBLIC TO " + USER + ";");
 		st.close();
 	}
+
 	// Dispose the authentication record from database
 	private static void TearDown() {
 		try {
@@ -92,6 +96,7 @@ public class OAuthSampleApp {
 			e.printStackTrace();
 		}
 	}
+
 	// Connect to Database using access Token
 	private static Connection connectToDB(String accessToken) throws SQLException {
 		Properties jdbcOptions = new Properties();
@@ -100,6 +105,7 @@ public class OAuthSampleApp {
 				"jdbc:vertica://" + getParam("Host") + ":" + getParam("Port") + "/" + getParam("Database"),
 				jdbcOptions);
 	}
+
 	// Test connection using access token and test database query result
 	private static void ConnectToDatabase() throws SQLException {
 		int connAttemptCount = 0;
@@ -133,6 +139,7 @@ public class OAuthSampleApp {
 			}
 		}
 	}
+
 	// execute Simple query on database connection
 	private static ResultSet executeQuery(Connection conn) throws SQLException {
 		Statement stmt = conn.createStatement();
@@ -140,6 +147,7 @@ public class OAuthSampleApp {
 		System.out.println("Executing query:" + query);
 		return stmt.executeQuery(query);
 	}
+
 	private static void printResults(ResultSet rs) throws SQLException {
 		int rowIdx = 1;
 		while (rs.next()) {
@@ -147,6 +155,7 @@ public class OAuthSampleApp {
 			rowIdx++;
 		}
 	}
+
 	// Get encoded URL from parameters
 	private static String getEncodedParamsString(Map<String, String> params) throws UnsupportedEncodingException {
 		StringBuilder result = new StringBuilder();
@@ -159,6 +168,7 @@ public class OAuthSampleApp {
 		result.setLength(result.length() - 1);
 		return result.toString();
 	}
+
 	// password grant logs into the IDP using credentials in app.config
 	public static void GetTokensByPasswordGrant() throws Exception {
 		Map<String, String> formData = new HashMap<String, String>();
@@ -169,6 +179,7 @@ public class OAuthSampleApp {
 		formData.put("password", prop.getProperty("Password"));
 		GetAndSetTokens(formData);
 	}
+
 	// refresh grant uses the refresh token to get the new access and refresh token
 	public static void GetTokensByRefreshGrant() throws Exception {
 		Map<String, String> formData = new HashMap<String, String>();
@@ -178,6 +189,7 @@ public class OAuthSampleApp {
 		formData.put("refresh_token", System.getProperty(OAUTH_REFRESH_TOKEN_VAR_STRING));
 		GetAndSetTokens(formData);
 	}
+
 	// read result from Buffered input stream
 	private static ByteArrayOutputStream readResult(BufferedInputStream in, ByteArrayOutputStream buf) {
 		try {
@@ -189,6 +201,7 @@ public class OAuthSampleApp {
 		}
 		return buf;
 	}
+
 	// get and set tokens from IDP
 	private static void GetAndSetTokens(Map<String, String> formData) throws Exception {
 		try {
@@ -242,6 +255,7 @@ public class OAuthSampleApp {
 			unreportedex.printStackTrace();
 		}
 	}
+
 	// If there is no access token, Get it using password grant
 	private static void EnsureAccessToken() throws Exception {
 		try {
@@ -256,6 +270,7 @@ public class OAuthSampleApp {
 			throw e;
 		}
 	}
+
 	// load the configuration properties
 	public static void loadProperties() {
 		prop = new Properties();
@@ -268,6 +283,7 @@ public class OAuthSampleApp {
 			ex.printStackTrace();
 		}
 	}
+
 	// main function, Call starts from here
 	public static void main(String[] args) {
 		try {
