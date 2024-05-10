@@ -51,11 +51,8 @@ public class OAuthSampleApp {
 		}
 	}
 	private static String getConnectionString() {
-		return "jdbc:vertica://" + csProp.get("Host") + ":" 
-								+ csProp.get("Port") + "/" 
-								+ csProp.get("Database") + "?user=" 
-								+ csProp.get("User") + "&password=" 
-								+ csProp.get("Password");
+		return "jdbc:vertica://" + csProp.get("Host") + ":" + csProp.get("Port") + "/" + csProp.get("Database")
+				+ "?user=" + csProp.get("User") + "&password=" + csProp.get("Password");
 	}
 	// Get the parameters from the connection String
 	private static String getParam(String paramName) {
@@ -112,9 +109,11 @@ public class OAuthSampleApp {
 				if (null == accessToken || accessToken.isEmpty()) {
 					throw new Exception("Access Token is not available.");
 				} else {
+					System.out.println("Attempting to connect with OAuth access token");
 					Connection conn = connectToDB(accessToken);
 					ResultSet rs = executeQuery(conn);
 					printResults(rs);
+					System.out.println("Query Executed. Exiting.");
 					break;
 				}
 			} catch (Exception ex) {
@@ -122,10 +121,8 @@ public class OAuthSampleApp {
 					break;
 				}
 				try {
-					ex.printStackTrace();
 					GetTokensByRefreshGrant();
 				} catch (Exception e1) {
-					e1.printStackTrace();
 					try {
 						GetTokensByPasswordGrant();
 					} catch (Exception e2) {
@@ -139,7 +136,9 @@ public class OAuthSampleApp {
 	// execute Simple query on database connection
 	private static ResultSet executeQuery(Connection conn) throws SQLException {
 		Statement stmt = conn.createStatement();
-		return stmt.executeQuery("SELECT user_id, user_name FROM USERS ORDER BY user_id");
+		String query = "SELECT user_id, user_name FROM USERS ORDER BY user_id";
+		System.out.println("Executing query:" + query);
+		return stmt.executeQuery(query);
 	}
 	private static void printResults(ResultSet rs) throws SQLException {
 		int rowIdx = 1;
@@ -212,7 +211,8 @@ public class OAuthSampleApp {
 				String res = buf.toString("UTF-8");
 				JsonElement jElement = JsonParser.parseString(res);
 				JsonObject jObject = jElement.getAsJsonObject();
-				// set Tokens as System Properties - new values to access_token and refresh_token
+				// set Tokens as System Properties - new values to access_token and
+				// refresh_token
 				String accessToken = jObject.has("access_token") ? jObject.get("access_token").getAsString() : null;
 				String refreshToken = jObject.has("refresh_token") ? jObject.get("refresh_token").getAsString() : null;
 				if (null == accessToken || null == refreshToken) {
@@ -242,10 +242,7 @@ public class OAuthSampleApp {
 			unreportedex.printStackTrace();
 		}
 	}
-	// It will get tokens from IDP using password grant if either of Access or
-	// Refresh tokens are not available
-	// If We have access token but there is no refresh token available, then 
-	// Still we will get the new tokens from IDP
+	// If there is no access token, Get it using password grant
 	private static void EnsureAccessToken() throws Exception {
 		try {
 			String accessToken = System.getenv(OAUTH_ACCESS_TOKEN_VAR_STRING);
@@ -253,13 +250,7 @@ public class OAuthSampleApp {
 				// Obtain first access token and refresh Tokens
 				GetTokensByPasswordGrant();
 			} else {
-				String refreshToken = System.getenv(OAUTH_REFRESH_TOKEN_VAR_STRING);
-				if (null == refreshToken || refreshToken.isEmpty()) {
-					GetTokensByPasswordGrant();
-				} else {
-					System.setProperty(OAUTH_ACCESS_TOKEN_VAR_STRING, accessToken);
-					System.setProperty(OAUTH_REFRESH_TOKEN_VAR_STRING, refreshToken);
-				}
+				System.setProperty(OAUTH_ACCESS_TOKEN_VAR_STRING, accessToken);
 			}
 		} catch (Exception e) {
 			throw e;
