@@ -49,10 +49,10 @@ dotnet run --framework net6.0
 
 If there is a pre-release version of the driver available on [NuGet](https://www.nuget.org/packages/Vertica.Data), you will need to reference the specific version in your project.
 
-For example, to reference `23.3.0-rc`, modify the project file `PackageReference` as follows:
+For example, to reference `24.1.0`, modify the project file `PackageReference` as follows:
 ```xml
 <ItemGroup>
-  <PackageReference Include="Vertica.Data" Version="23.3.0-rc" />
+  <PackageReference Include="Vertica.Data" Version="24.1.0" />
 </ItemGroup>
 ```
 

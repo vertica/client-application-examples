@@ -1,0 +1,5 @@
+voauth*.properties
+target/*
+*.bak
+*.jar
+.vscode/*

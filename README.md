@@ -6,3 +6,4 @@ Sample applications:
 - [ADO.NET sample app](ADO.NET/README.md)
 - [JDBC sample app with OAuth 2.0](JDBC/README.md)
 - [ODBC sample app with OAuth 2.0](ODBC/README.md)
+- [Ruby sample app](Ruby/README.md)

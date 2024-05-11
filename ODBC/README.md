@@ -48,8 +48,5 @@ Possible options:
 ```
 --access-token <access token>
 --refresh-token <refresh token>
---client-id <client ID>
 --client-secret <client secret>
---token-url <token URL>
---scope <scope>
 ```
