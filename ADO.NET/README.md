@@ -4,7 +4,7 @@
 
 The Vertica ADO.NET driver provides a data source for Vertica, so a client can connect and read/write data.  The driver is written in C# and built on .NET.  The published version can be found on NuGet [here](https://www.nuget.org/packages/Vertica.Data).
 
-See the available data types, commands, and other information [here](https://docs.vertica.com/24.1.x/en/connecting-to/client-libraries/accessing/c/).
+See the available data types, commands, and other information [here](https://docs.vertica.com/24.2.x/en/connecting-to/client-libraries/accessing/c/).
 
 ## Prerequisites
 
