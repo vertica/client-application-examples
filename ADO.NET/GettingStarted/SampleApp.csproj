@@ -13,15 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-<<<<<<< HEAD:ADO.NET/SampleApp.csproj
     <PackageReference Include="Vertica.Data" Version="24.2.0" />
-=======
-    <PackageReference Include="Vertica.Data" Version="24.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="..\shared\**\*.cs" />
->>>>>>> main:ADO.NET/GettingStarted/SampleApp.csproj
   </ItemGroup>
 
 </Project>
