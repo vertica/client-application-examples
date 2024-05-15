@@ -66,7 +66,6 @@ public class OAuthSampleApp {
 	private static void SetUpDbForOAuth() throws Exception {
 		String connectionString = getConnectionString();
 		vConnection = DriverManager.getConnection(connectionString);
-		String CONNECTION_STRING = prop.getProperty("ConnectionString");
 		String USER = prop.getProperty("User");
 		String CLIENT_ID = prop.getProperty("ClientId");
 		String CLIENT_SECRET = prop.getProperty("ClientSecret");
@@ -130,6 +129,7 @@ public class OAuthSampleApp {
 					GetTokensByRefreshGrant();
 				} catch (Exception e1) {
 					try {
+						System.out.println("Refresh token is invalid/Expired, Getting new tokens");
 						GetTokensByPasswordGrant();
 					} catch (Exception e2) {
 						e2.printStackTrace();
@@ -260,10 +260,22 @@ public class OAuthSampleApp {
 	private static void EnsureAccessToken() throws Exception {
 		try {
 			String accessToken = System.getenv(OAUTH_ACCESS_TOKEN_VAR_STRING);
+			String refreshToken = System.getenv(OAUTH_REFRESH_TOKEN_VAR_STRING);
 			if (null == accessToken || accessToken.isEmpty()) {
-				// Obtain first access token and refresh Tokens
-				GetTokensByPasswordGrant();
-			} else {
+				if (null == refreshToken || refreshToken.isEmpty()) {
+					// Obtain first access token and refresh Tokens
+					System.out.println("Access token is invalid/expired, trying to do refresh");
+					GetTokensByPasswordGrant();
+				} else {
+					try{
+						System.out.println("Attempting to use given refresh token.");
+						GetTokensByRefreshGrant();
+					}catch(){
+						System.out.println("Initial refresh token has expired. Getting new access and refresh tokens.");
+                    	GetTokensByPasswordGrant();
+					}
+				}
+			}else{
 				System.setProperty(OAUTH_ACCESS_TOKEN_VAR_STRING, accessToken);
 			}
 		} catch (Exception e) {
