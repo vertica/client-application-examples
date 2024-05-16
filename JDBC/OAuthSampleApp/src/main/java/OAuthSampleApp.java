@@ -256,7 +256,7 @@ public class OAuthSampleApp {
 		}
 	}
 
-	// If there is no access token, Get it using password grant
+	// If access token is Invalid/Expired, Get new tokens using password/refresh grant
 	private static void EnsureAccessToken() throws Exception {
 		try {
 			String accessToken = System.getenv(OAUTH_ACCESS_TOKEN_VAR_STRING);
