@@ -97,7 +97,7 @@ public class OAuthSampleApp {
 	}
 
 	// Connect to Database using access Token
-	private static Connection connectToDB(String accessToken) throws SQLException {
+	private static Connection getConnection(String accessToken) throws SQLException {
 		Properties jdbcOptions = new Properties();
 		jdbcOptions.put("oauthaccesstoken", accessToken);
 		return DriverManager.getConnection(
@@ -115,7 +115,7 @@ public class OAuthSampleApp {
 					throw new Exception("Access Token is not available.");
 				} else {
 					System.out.println("Attempting to connect with OAuth access token");
-					Connection conn = connectToDB(accessToken);
+					Connection conn = getConnection(accessToken);
 					ResultSet rs = executeQuery(conn);
 					printResults(rs);
 					System.out.println("Query Executed. Exiting.");
