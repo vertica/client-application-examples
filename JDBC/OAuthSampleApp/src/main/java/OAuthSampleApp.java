@@ -228,7 +228,7 @@ public class OAuthSampleApp {
 				// refresh_token
 				String accessToken = jObject.has("access_token") ? jObject.get("access_token").getAsString() : null;
 				String refreshToken = jObject.has("refresh_token") ? jObject.get("refresh_token").getAsString() : null;
-				if (null == accessToken || null == refreshToken) {
+				if (null == accessToken) {
 					throw new Exception(
 							"Access/refresh token is null, Please verify the config.properties for proper inputs.");
 				}
@@ -270,7 +270,7 @@ public class OAuthSampleApp {
 					try{
 						System.out.println("Attempting to use given refresh token.");
 						GetTokensByRefreshGrant();
-					}catch(){
+					}catch(Exception e){
 						System.out.println("Initial refresh token has expired. Getting new access and refresh tokens.");
                     	GetTokensByPasswordGrant();
 					}
@@ -303,10 +303,6 @@ public class OAuthSampleApp {
 			SetUpDbForOAuth();
 			EnsureAccessToken();
 			ConnectToDatabase();
-		} catch (SQLTransientConnectionException connException) {
-			connException.printStackTrace();
-		} catch (SQLInvalidAuthorizationSpecException authException) {
-			authException.printStackTrace();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (Exception unreportedEx) {
@@ -317,3 +313,4 @@ public class OAuthSampleApp {
 		System.exit(0);
 	}
 }
+
