@@ -233,7 +233,9 @@ public class OAuthSampleApp {
 							"Access/refresh token is null, Please verify the config.properties for proper inputs.");
 				}
 				System.setProperty(OAUTH_ACCESS_TOKEN_VAR_STRING, accessToken);
-				System.setProperty(OAUTH_REFRESH_TOKEN_VAR_STRING, refreshToken);
+				if(null != refreshToken && !refreshToken.isEmpty()) {
+					System.setProperty(OAUTH_REFRESH_TOKEN_VAR_STRING, refreshToken);
+				}
 			} catch (UnsupportedEncodingException uee) {
 				uee.printStackTrace();
 			} catch (Exception e) {
